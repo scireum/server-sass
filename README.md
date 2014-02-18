@@ -8,7 +8,7 @@ The idea is to only implement those features of SASS, which we really need - but
 Therefore we have a test coverage of 80%+ of all lines using automated tests. If there is a missing feature,
 feel free to fork ;-)
 
-For a good description on SASS go to: http://sass-lang.org
+For a good description on SASS go to: http://sass-lang.com
 
 Using it is as simple as:
 
