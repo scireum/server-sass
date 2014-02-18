@@ -1,0 +1,30 @@
+/**
+ * This comment will be ignored
+ */
+@media screen {
+
+  // This will be ignored as well
+  .message {
+    color: #333;
+  }
+
+  @media (min-width: 100px) {
+    .message {
+      color: black;
+    }
+  }
+
+  .success {
+    color: red;
+
+    @media (min-width: 100px) {
+      color: white;
+    }
+
+  }
+
+}
+
+body {
+  background-image: url('test.png');
+}

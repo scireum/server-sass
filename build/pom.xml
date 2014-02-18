@@ -1,0 +1,41 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.scireum</groupId>
+    <artifactId>server-sass</artifactId>
+    <packaging>jar</packaging>
+    <name>server-sass</name>
+    <version>1.0</version>
+    <description>server-sass is a simple implementation of SASS (sass-lang.org)</description>
+    <url>https://github.com/scireum/server-sass</url>
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://github.com/scireum/server-sass/blob/master/LICENSE</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <url>https://github.com/scireum/server-sass.git</url>
+        <connection>https://github.com/scireum/server-sass.git</connection>
+    </scm>
+    <developers>
+        <developer>
+            <id>aha</id>
+            <name>Andreas Haufler</name>
+            <email>aha@scireum.de</email>
+        </developer>
+    </developers>
+    <dependencies>
+        <dependency>
+            <groupId>com.scireum</groupId>
+            <artifactId>parsii</artifactId>
+            <version>1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
