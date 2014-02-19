@@ -12,11 +12,10 @@ import org.serversass.Generator;
 import org.serversass.Scope;
 
 /**
- * Created with IntelliJ IDEA.
- * User: aha
- * Date: 18.02.14
- * Time: 14:49
- * To change this template use File | Settings | File Templates.
+ * Represents a color like #565656.
+ *
+ * @author Andreas Haufler (aha@scireum.de)
+ * @since 2014/02
  */
 public class Color extends Expression {
 
@@ -25,6 +24,14 @@ public class Color extends Expression {
     private int b = 0;
     private double a = 0;
 
+    /**
+     * Sets the RGBA values of the color
+     *
+     * @param r the red part 0..255
+     * @param g the green part 0..255
+     * @param b the blue part 0..255
+     * @param a the alpha part 0..1
+     */
     public void setRGBA(int r, int g, int b, double a) {
         this.r = r;
         this.g = g;

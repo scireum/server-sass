@@ -14,11 +14,10 @@ import org.serversass.Scope;
 import java.util.Locale;
 
 /**
- * Created with IntelliJ IDEA.
- * User: aha
- * Date: 16.02.14
- * Time: 21:17
- * To change this template use File | Settings | File Templates.
+ * Represents a binary operation.
+ *
+ * @author Andreas Haufler (aha@scireum.de)
+ * @since 2014/02
  */
 public class Operation extends Expression {
     private String operation;
@@ -26,32 +25,67 @@ public class Operation extends Expression {
     private Expression right;
     private boolean protect = false;
 
+    /**
+     * Creates a new operation, with the given operator and the left and right expression.
+     *
+     * @param operation the operation to use
+     * @param left      the expression on the left side
+     * @param right     the expression on the right side
+     */
     public Operation(String operation, Expression left, Expression right) {
         this.operation = operation;
         this.left = left;
         this.right = right;
     }
 
+    /**
+     * Marks that this expression is guarded by braces so that operator precedence does not matter.
+     */
     public void protect() {
         protect = true;
     }
 
+    /**
+     * Returns the operator of this operation.
+     *
+     * @return the operator as string
+     */
     public String getOperation() {
         return operation;
     }
 
+    /**
+     * Determines if the operation is guarded by braces and most not be re-ordered by operator precedence.
+     *
+     * @return <tt>true</tt> if the operation is surrounded by braces, <tt>false</tt> otherwise
+     */
     public boolean isProtect() {
         return protect;
     }
 
+    /**
+     * Returns the left side of the operation.
+     *
+     * @return the left side of the operation
+     */
     public Expression getLeft() {
         return left;
     }
 
+    /**
+     * Returns the right side of the operation.
+     *
+     * @return the right side of the operation
+     */
     public Expression getRight() {
         return right;
     }
 
+    /**
+     * Sets the right side of the operation.
+     *
+     * @param right the new right side of the operation
+     */
     public void setRight(Expression right) {
         this.right = right;
     }
@@ -115,7 +149,8 @@ public class Operation extends Expression {
                     if ("".equals(unit)) {
                         unit = rUnit;
                     } else if (!"".equals(rUnit) && !lUnit.equals(rUnit)) {
-                        gen.warn(String.format("Incompatible units mixed in expression '%s': Using left unit for result", this));
+                        gen.warn(String.format("Incompatible units mixed in expression '%s': Using left unit for result",
+                                               this));
                     }
                 }
             }

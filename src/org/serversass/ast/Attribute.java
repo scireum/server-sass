@@ -9,33 +9,57 @@
 package org.serversass.ast;
 
 /**
- * Created with IntelliJ IDEA.
- * User: aha
- * Date: 16.02.14
- * Time: 20:31
- * To change this template use File | Settings | File Templates.
+ * Represents an attribute within a section like:
+ * <code>
+ * <pre>
+ *    font-size: 15px;
+ * </pre>
+ * </code>
+ *
+ * @author Andreas Haufler (aha@scireum.de)
+ * @since 2014/02
  */
 public class Attribute {
     private String name;
     private Expression expression;
 
+    /**
+     * Creates a new attribute with the given name
+     *
+     * @param name the name of the attribute without ":" at the end
+     */
     public Attribute(String name) {
         this.name = name;
     }
 
+    /**
+     * Sets the expression representing the value of the attribute
+     *
+     * @param expression the new value of the attribute
+     */
     public void setExpression(Expression expression) {
         this.expression = expression;
     }
 
+    /**
+     * Returns the expression representing the value of the attribute
+     *
+     * @return the value of the attribute as expression
+     */
     public Expression getExpression() {
         return expression;
     }
 
     @Override
     public String toString() {
-        return name+": "+expression+";";
+        return name + ": " + expression + ";";
     }
 
+    /**
+     * Returns the name of the attribute without the trailing ":"
+     *
+     * @return the name of the attribute
+     */
     public String getName() {
         return name;
     }

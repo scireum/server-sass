@@ -15,19 +15,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: aha
- * Date: 16.02.14
- * Time: 21:17
- * To change this template use File | Settings | File Templates.
+ * Represents a function call like "lighten(#FFFFF, 1)".
+ *
+ * @author Andreas Haufler (aha@scireum.de)
+ * @since 2014/02
  */
 public class FunctionCall extends Expression {
+
     private String name;
     private List<Expression> parameters = new ArrayList<Expression>();
 
+    /**
+     * Creates a new and empty function call
+     */
     public FunctionCall() {
     }
 
+    /**
+     * Returns the name of the function.
+     *
+     * @return the name of the function
+     */
     public String getName() {
         return name;
     }
@@ -48,14 +56,29 @@ public class FunctionCall extends Expression {
         return sb.append(")").toString();
     }
 
+    /**
+     * Sets the name of the function
+     *
+     * @param name the name of the function
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * Adds the given expression as parameter
+     *
+     * @param expression the parameter to add
+     */
     public void addParameter(Expression expression) {
         parameters.add(expression);
     }
 
+    /**
+     * Returns all parameters of the function
+     *
+     * @return a list of all parameters
+     */
     public List<Expression> getParameters() {
         return parameters;
     }

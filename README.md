@@ -20,7 +20,10 @@ gen.importStylesheet("test.scss");
 // Finalize expansions and evaluate expressions
 gen.compile();
 // Access css sources
-String css = gen.toString();
+StringWriter out = new StringWriter();
+Output output = new Output(out, false);
+gen.generate(out);
+String css = out.toString();
 ```
 
 For your convenience: A pre-built jar can be found in the build directory.

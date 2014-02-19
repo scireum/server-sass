@@ -1,19 +1,21 @@
 body {
- background-image: url('test.png');
+    background-image: url('test.png');
 }
+
 @media screen {
-.message {
- color: #333;
+    .message {
+        color: #333;
+    }
+    .success {
+        color: red;
+    }
 }
-.success {
- color: red;
-}
-}
+
 @media screen and (min-width: 100px) {
-.message {
- color: black;
-}
-.success {
- color: white;
-}
+    .message {
+        color: black;
+    }
+    .success {
+        color: white;
+    }
 }

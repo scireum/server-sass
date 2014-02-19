@@ -12,20 +12,29 @@ import org.serversass.Generator;
 import org.serversass.Scope;
 
 /**
- * Created with IntelliJ IDEA.
- * User: aha
- * Date: 16.02.14
- * Time: 21:17
- * To change this template use File | Settings | File Templates.
+ * Represents a plain value.
+ *
+ * @author Andreas Haufler (aha@scireum.de)
+ * @since 2014/02
  */
 public class Value extends Expression {
     private String contents;
 
+    /**
+     * Creates a new value representing the given contents a value.
+     *
+     * @param contents the value to be represented
+     */
     public Value(String contents) {
         super();
         this.contents = contents;
     }
 
+    /**
+     * Returns the represented value
+     *
+     * @return the value to represent
+     */
     public String getContents() {
         return contents;
     }

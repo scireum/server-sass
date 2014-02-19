@@ -12,19 +12,28 @@ import org.serversass.Generator;
 import org.serversass.Scope;
 
 /**
- * Created with IntelliJ IDEA.
- * User: aha
- * Date: 16.02.14
- * Time: 21:17
- * To change this template use File | Settings | File Templates.
+ * References a variable like "$test".
+ *
+ * @author Andreas Haufler (aha@scireum.de)
+ * @since 2014/02
  */
 public class VariableReference extends Expression {
     private String name;
 
+    /**
+     * Creates a new reference for the given variable.
+     *
+     * @param name the name of the variable to reference (without $).
+     */
     public VariableReference(String name) {
         this.name = name;
     }
 
+    /**
+     * Returns the name of the variable.
+     *
+     * @return the name of the variable (without $)
+     */
     public String getName() {
         return name;
     }

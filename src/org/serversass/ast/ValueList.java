@@ -15,15 +15,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: aha
- * Date: 16.02.14
- * Time: 21:17
- * To change this template use File | Settings | File Templates.
+ * Represents a list of values.
+ *
+ * @author Andreas Haufler (aha@scireum.de)
+ * @since 2014(02
  */
 public class ValueList extends Expression {
     private List<Expression> elements = new ArrayList<Expression>();
 
+    /**
+     * Creates a new and empty value list
+     */
     public ValueList() {
     }
 
@@ -40,10 +42,20 @@ public class ValueList extends Expression {
         return sb.toString();
     }
 
+    /**
+     * Adds the given element to the list.
+     *
+     * @param element the element to add
+     */
     public void add(Expression element) {
         elements.add(element);
     }
 
+    /**
+     * Returns the contents of the value list.
+     *
+     * @return a list of all elements in the value list
+     */
     public List<Expression> getElements() {
         return elements;
     }

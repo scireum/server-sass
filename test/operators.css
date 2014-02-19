@@ -1,12 +1,14 @@
 .container {
- width: 100%;
+    width: 100%;
 }
+
 article[role="main"] {
- float: left;
- width: 62.50%;
- height: 780px;
+    float: left;
+    width: 62.50%;
+    height: 780px;
 }
+
 aside[role="complimentary"] {
- float: right;
- width: 31.25%;
+    float: right;
+    width: 31.25%;
 }

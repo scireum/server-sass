@@ -20,14 +20,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: aha
- * Date: 13.02.14
- * Time: 22:16
- * To change this template use File | Settings | File Templates.
+ * Parses a given SASS source into a {@link Stylesheet}.
+ *
+ * @author Andreas Haufler (aha@scireum.de)
+ * @since 2014/02
  */
 public class Parser {
 
+    /**
+     * How to put that right: CSS is kind of "special gifted" - so tokenization is not always that straightforward.
+     * <p>
+     * Therefore we subclass the tokenizer to handle css selectors etc. right here in the tokenizer.
+     * </p>
+     */
     class SassTokenizer extends Tokenizer {
 
         public SassTokenizer(Reader input) {
@@ -49,6 +54,7 @@ public class Parser {
         @Override
         protected Token fetchNumber() {
             Token token = super.fetchNumber();
+            // If a number is immediately followed by % or a text like "px" - this belongs to the numeric token.
             if (input.current().is('%')) {
                 token.addToContent(input.consume());
                 return token;
@@ -62,6 +68,7 @@ public class Parser {
 
         @Override
         protected boolean handleStringEscape(char separator, char escapeChar, Token stringToken) {
+            // All escaped characters will be kept in original form...
             stringToken.addToContent(escapeChar);
             stringToken.addToContent(input.consume());
             return true;
@@ -69,6 +76,9 @@ public class Parser {
 
         @Override
         protected boolean isAtBracket(boolean inSymbol) {
+            // Treat % as single symbol so that 10%; is not tokenized to
+            // "10", "%;" but to "10", "%", ";"
+            // The title of this method might be a bit misleading
             return super.isAtBracket(inSymbol) || input.current().is('%');
         }
 
@@ -77,6 +87,7 @@ public class Parser {
             if (super.isAtStartOfIdentifier()) {
                 return true;
             }
+            // Support vendor specific and class selectors like -moz-border-radius or .test
             if ((input.current().is('-') || input.current().is(':') || input.current().is('.')) && input.next()
                                                                                                         .isLetter()) {
                 return true;
@@ -90,6 +101,7 @@ public class Parser {
             if (super.isIdentifierChar(current)) {
                 return true;
             }
+            // CSS selectors can contain "-", "." or "#" as long as it is not the last character of the token
             if ((current.is('-') || current.is('.') || current.is('#')) && !input.next().isWhitepace()) {
                 return true;
             }
@@ -101,29 +113,47 @@ public class Parser {
     private final SassTokenizer tokenizer;
     private Stylesheet result;
 
+    /**
+     * Creates a new tokenizer parsing the input with the given name.
+     *
+     * @param name  name of the file being parsed
+     * @param input the data to parse
+     */
     public Parser(String name, Reader input) {
         tokenizer = new SassTokenizer(input);
         result = new Stylesheet(name);
     }
 
-    public Stylesheet compile() throws ParseException {
+    /**
+     * Parses the given input returning the parsed stylesheet.
+     *
+     * @return the AST representation of the parsed input
+     * @throws ParseException if one or more problems occurred while parsing
+     */
+    public Stylesheet parse() throws ParseException {
         while (tokenizer.more()) {
             if (tokenizer.current().isKeyword("import")) {
+                // Handle @import
                 parseImport();
             } else if (tokenizer.current().isKeyword("mixin")) {
+                // Handle @mixin
                 Mixin mixin = parseMixin();
                 if (mixin.getName() != null) {
                     result.addMixin(mixin);
                 }
             } else if (tokenizer.current().isKeyword("media")) {
+                // Handle @media
                 result.addSection(parseSection(true));
             } else if (tokenizer.current().isSpecialIdentifier("$") && tokenizer.next().isSymbol(":")) {
+                // Handle variable definition
                 parseVariableDeclaration();
             } else {
+                // Everything else is a "normal" section  with selectors and attributes
                 result.addSection(parseSection(false));
             }
         }
 
+        // Something went wrong? Throw an exception
         if (!tokenizer.getProblemCollector().isEmpty()) {
             throw ParseException.create(tokenizer.getProblemCollector());
         }
@@ -131,14 +161,23 @@ public class Parser {
         return result;
     }
 
+    /**
+     * Parses a "section" which is either a media query or a css selector along with a set of attributes.
+     *
+     * @param mediaQuery determines if we're about to parse a media query or a "normal" section
+     * @return the parsed section
+     */
     private Section parseSection(boolean mediaQuery) {
         Section result = new Section();
         if (mediaQuery) {
+            // Parse a media query like @media screen and (min-width: 1200px)
             tokenizer.consumeExpectedKeyword("media");
             while (true) {
                 if (tokenizer.current().isIdentifier()) {
+                    // Handle plain identifiers like "screen" or "print"
                     result.addMediaQuery(new Value(tokenizer.consume().getContents()));
                 } else if (tokenizer.current().isSymbol("(")) {
+                    // Handle filters like (orientation: landscape)
                     tokenizer.consumeExpectedSymbol("(");
                     if (tokenizer.current().isIdentifier() && tokenizer.next().isSymbol(":")) {
                         MediaFilter attr = new MediaFilter(tokenizer.consume().getContents());
@@ -154,6 +193,7 @@ public class Parser {
                 } else {
                     break;
                 }
+                // We only handle "and" as conjunction between two filters
                 if (!tokenizer.current().isIdentifier("and")) {
                     break;
                 } else {
@@ -161,9 +201,11 @@ public class Parser {
                 }
             }
         } else {
+            // Parse selectors like "b div.test"
             while (tokenizer.more()) {
                 List<String> selector = parseSelector();
                 result.getSelectors().add(selector);
+                // If another selector is given, swallow the "," and parse the next selector, else we're done.
                 if (!tokenizer.current().isSymbol(",")) {
                     break;
                 } else {
@@ -177,6 +219,7 @@ public class Parser {
                 tokenizer.consumeExpectedSymbol("}");
                 return result;
             }
+            // Parse "normal" attributes like "font-weight: bold;"
             if (tokenizer.current().isIdentifier() && tokenizer.next().isSymbol(":")) {
                 Attribute attr = new Attribute(tokenizer.consume().getContents());
                 tokenizer.consumeExpectedSymbol(":");
@@ -187,8 +230,10 @@ public class Parser {
                     tokenizer.consumeExpectedSymbol(";");
                 }
             } else if (tokenizer.current().isKeyword("media")) {
+                // Take care of @media sub sections
                 result.addSubSection(parseSection(true));
             } else if (tokenizer.current().isKeyword("include")) {
+                // Take care of included mixins like "@include border(15px);"
                 tokenizer.consumeExpectedKeyword("include");
                 MixinReference ref = new MixinReference();
                 if (tokenizer.current().isIdentifier()) {
@@ -199,6 +244,7 @@ public class Parser {
                                                                         .getSource() + "'. Expected a mixin to use");
                 }
                 tokenizer.consumeExpectedSymbol("(");
+                // Parse parameters - be as error tolerant as possible
                 while (tokenizer.more() && !tokenizer.current().isSymbol(")", ";", "{", "}")) {
                     ref.addParameter(parseExpression());
                     if (tokenizer.current().isSymbol(",")) {
@@ -217,6 +263,7 @@ public class Parser {
                     result.addMixinReference(ref);
                 }
             } else if (tokenizer.current().isKeyword("extend")) {
+                // Parse @extend instructions like "@extend .warning"
                 tokenizer.consumeExpectedKeyword("extend");
                 if (tokenizer.current().isIdentifier() || tokenizer.current().isSpecialIdentifier("#")) {
                     result.addExtends(tokenizer.consume().getSource());
@@ -229,6 +276,7 @@ public class Parser {
                     tokenizer.consumeExpectedSymbol(";");
                 }
             } else {
+                // If it is neither an attribute, nor a media query or instruction - it is probably a sub section...
                 result.addSubSection(parseSection(false));
             }
         }
@@ -236,6 +284,10 @@ public class Parser {
         return result;
     }
 
+    /*
+     * CSS and therefore als SASS supports a wide range or complex selector strings. The following method
+     * parses such selectors while performing basic consistency checks
+     */
     private List<String> parseSelector() {
         List<String> selector = new ArrayList<String>();
         boolean lastWasId = false;
@@ -298,6 +350,9 @@ public class Parser {
         return selector;
     }
 
+    /*
+     * Parses a variable declaration in form of "$variable: value;" or "$variable: value !default;"
+     */
     private void parseVariableDeclaration() {
         Variable var = new Variable();
         var.setName(tokenizer.consume().getContents());
@@ -312,6 +367,10 @@ public class Parser {
         tokenizer.consumeExpectedSymbol(";");
     }
 
+    /*
+     * Parses an expression which can be the value of an attribute or media query. Basic numeric operations
+     * like +,-,*,/,% are supported. Also " " separated lists will be parsed as ValueList
+     */
     private Expression parseExpression() {
         Expression result = parseAtom();
         while (tokenizer.more()) {
@@ -338,6 +397,9 @@ public class Parser {
         return result;
     }
 
+    /*
+     * Takes care of operator precedence by modifying the AST appropriately
+     */
     private Expression joinOperations(Expression result, String operation, Expression next) {
         if (!(result instanceof Operation)) {
             return new Operation(operation, result, next);
@@ -354,15 +416,23 @@ public class Parser {
         return new Operation(operation, result, next);
     }
 
+    /*
+     * Parses an atom. This is either an identifier ("bold"), a number (15px), a string ('OpenSans'), a color
+     * (#454545) or another expression in braces.
+     */
     private Expression parseAtom() {
+        // Parse a number
         if (tokenizer.current().isNumber()) {
             return new Number(tokenizer.consume().getContents());
         }
+        // Parse a color
         if (tokenizer.current().isSpecialIdentifier("#")) {
             return new Value(tokenizer.consume().getSource()); //TODO encode color
         }
+        // Parse an identifier or function call
         if (tokenizer.current().isIdentifier()) {
             if (tokenizer.next().isSymbol("(")) {
+                // An identifier followed by '(' is a function call...
                 FunctionCall fun = new FunctionCall();
                 fun.setName(tokenizer.consume().getContents());
                 tokenizer.consumeExpectedSymbol("(");
@@ -379,6 +449,7 @@ public class Parser {
                 tokenizer.consumeExpectedSymbol(")");
                 return fun;
             } else if (tokenizer.next().isSymbol(",")) {
+                // Parse a value list like Arial,Helvetica
                 StringBuilder sb = new StringBuilder(tokenizer.consume().getSource());
                 while (tokenizer.current().isSymbol(",")) {
                     sb.append(tokenizer.consume().getSource());
@@ -388,14 +459,22 @@ public class Parser {
                 }
                 return new Value(sb.toString());
             }
+
+            // Neither function or value list -> simple value
             return new Value(tokenizer.consume().getSource());
         }
+
+        // Parse as variable reference
         if (tokenizer.current().isSpecialIdentifier("$")) {
             return new VariableReference(tokenizer.consume().getContents());
         }
+
+        // Parse as string constant
         if (tokenizer.current().isString()) {
             return new Value(tokenizer.consume().getSource());
         }
+
+        // Parse as expression in braces
         if (tokenizer.current().isSymbol("(")) {
             tokenizer.consumeExpectedSymbol("(");
             Expression result = parseExpression();
@@ -405,19 +484,27 @@ public class Parser {
             }
             return result;
         }
+
+        // Attribute values can be followed by things like "!import" -> make a value list
         if (tokenizer.current().isSymbol("!") && tokenizer.next().isIdentifier()) {
             tokenizer.consumeExpectedSymbol("!");
             return new Value("!" + tokenizer.consume().getContents());
         }
+
+        // We failed! Report an error and return "" as value (we will fail anyway...)
         tokenizer.addError(tokenizer.current(),
                            "Unexpected token: '" + tokenizer.consume().getSource() + "'. Expected an expression.");
         return new Value("");
 
     }
 
+    /*
+     * Parse @mixin which are essentially template secions...
+     */
     private Mixin parseMixin() {
         tokenizer.consumeExpectedKeyword("mixin");
         Mixin mixin = new Mixin();
+        // Parse name
         if (tokenizer.current().isIdentifier()) {
             mixin.setName(tokenizer.consume().getContents());
         } else {
@@ -425,6 +512,7 @@ public class Parser {
                                "Unexpected token: '" + tokenizer.current()
                                                                 .getSource() + "'. Expected the name of the mixin as identifier.");
         }
+        // Parse parameter names...
         tokenizer.consumeExpectedSymbol("(");
         while (tokenizer.more()) {
             if (tokenizer.current().isSymbol("{")) {
@@ -453,6 +541,7 @@ public class Parser {
             }
         }
 
+        // Parse attributes - sub sections are not expected...
         tokenizer.consumeExpectedSymbol("{");
         while (tokenizer.more()) {
             if (tokenizer.current().isSymbol("}")) {
@@ -478,6 +567,9 @@ public class Parser {
         return mixin;
     }
 
+    /*
+     * Parses an import statement like "@import 'test';"
+     */
     private void parseImport() {
         tokenizer.consumeExpectedKeyword("import");
         if (!tokenizer.current().isString()) {

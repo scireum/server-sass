@@ -1,17 +1,14 @@
 import org.junit.Assert;
 import org.junit.Test;
 import org.serversass.Generator;
+import org.serversass.Output;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 
 /**
- * Created with IntelliJ IDEA.
- * User: aha
- * Date: 18.02.14
- * Time: 17:01
- * To change this template use File | Settings | File Templates.
+ * Tests the SASS to CSS compiler
  */
 public class SassTest {
     @Test
@@ -68,7 +65,10 @@ public class SassTest {
             reader.close();
 
             String expected = writer.toString();
-            String result = gen.toString();
+            StringWriter out = new StringWriter();
+            Output output = new Output(out, false);
+            gen.generate(output);
+            String result = out.toString();
 
             String[] expectedLines = expected.split("\n");
             String[] resultLines = result.split("\n");
