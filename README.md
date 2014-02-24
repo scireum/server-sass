@@ -29,7 +29,7 @@ String css = out.toString();
 For your convenience: A pre-built jar can be found in the build directory.
 
 If you also need a modern, rock solid web framework which has this module already built in, have
-a look at SIRIUS: https://github.com/scireum/sirius
+a look at SIRIUS: https://github.com/scireum/sirius (CSS is auto-generated for .scss files by the AssetsDispatcher: https://github.com/scireum/sirius/blob/develop/web/src/sirius/web/dispatch/AssetsDispatcher.java#L156)
 
 server-sass is part of the open source initiative of scireum GmbH (http://www.scireum.de)
 
