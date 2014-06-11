@@ -5,3 +5,6 @@ server-sass.iml
 build/docs
 target/**
 lib/**
+build/dist/**
+build/docs/**
+build/*.jar
