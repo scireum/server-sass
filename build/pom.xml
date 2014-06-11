@@ -18,6 +18,19 @@
         <url>https://github.com/scireum/server-sass.git</url>
         <connection>https://github.com/scireum/server-sass.git</connection>
     </scm>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <!-- or whatever version you use -->
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     <developers>
         <developer>
             <id>aha</id>
