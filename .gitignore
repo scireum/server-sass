@@ -4,3 +4,4 @@ out
 server-sass.iml
 build/docs
 target/**
+lib/**
