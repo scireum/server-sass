@@ -1,7 +1,7 @@
+package org.serversass;
+
 import org.junit.Assert;
 import org.junit.Test;
-import org.serversass.Generator;
-import org.serversass.Output;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
