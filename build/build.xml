@@ -26,7 +26,7 @@
             </fileset>
         </delete>
         <delete>
-            <fileset dir="">
+            <fileset dir=".">
                 <include name="*.jar*"/>
             </fileset>
         </delete>
