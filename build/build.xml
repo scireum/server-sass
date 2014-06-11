@@ -40,6 +40,8 @@
         <javac compiler="javac1.6"
                includeantruntime="false"
                encoding="UTF-8"
+               source="1.6"
+               target="1.6"
                debug="on"
                destdir="dist">
             <classpath refid="master-classpath"/>
