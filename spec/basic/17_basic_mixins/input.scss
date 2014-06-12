@@ -1,0 +1,30 @@
+@mixin foo($x, $y) {
+  hugabug: $y $x;
+}
+
+@mixin bar($a, $b) {
+  flugablug: $a $b glug;
+}
+
+@mixin hux() {
+  no: parameters here;
+
+  /* end of hux */
+}
+
+a {
+  hey: ho;
+  @include foo(second, third);
+  @include foo(kwd-y, kwd-x);
+  goo: boo hoo;
+  @include hux;
+  @include bar(pug);
+  @include bar(pug, mug);
+}
+
+
+$x: from a variable;
+
+div {
+  blah: blah $x blah;
+}
