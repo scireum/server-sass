@@ -1,4 +1,6 @@
-package org.serversass;/*
+package org.serversass;
+
+/*
  * Made with all the love in the world
  * by scireum in Remshalden, Germany
  *
@@ -6,6 +8,7 @@ package org.serversass;/*
  * http://www.scireum.de - info@scireum.de
  */
 
+import org.junit.Test;
 import org.serversass.Generator;
 import org.serversass.Output;
 
@@ -13,18 +16,21 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 /**
  * Tests the SASS to CSS compiler
  */
 public class SassSpecTest {
 
-    public static void main(String[] args) {
-        File spec = new File("spec");
-        scanFiles(spec);
+    @Test
+    public void scssRegressionTest() throws URISyntaxException {
+        URL specUrl = getClass().getResource("/spec");
+        scanFiles(new File(specUrl.getFile()));
     }
 
-    private static void scanFiles(File spec) {
+    private void scanFiles(File spec) throws URISyntaxException {
         for (File child : spec.listFiles()) {
             if (child.isDirectory()) {
                 scanFiles(child);
@@ -34,9 +40,9 @@ public class SassSpecTest {
         }
     }
 
-    private static void check(File scssFile) {
+    private void check(final File scssFile) {
         try {
-            Generator gen = new Generator(new File("spec")) {
+            Generator gen = new Generator(scssFile.getParentFile()) {
                 @Override
                 public void warn(String message) {
                     System.err.println(message);
@@ -44,7 +50,7 @@ public class SassSpecTest {
 
             };
 
-            gen.importStylesheet("basic/17_basic_mixins/input.scss");
+            gen.importStylesheet(scssFile.getName());
             gen.compile();
 
             StringWriter writer = new StringWriter();
