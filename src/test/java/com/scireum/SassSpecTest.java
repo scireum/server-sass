@@ -1,4 +1,4 @@
-package org.serversass;
+package com.scireum;
 
 /*
  * Made with all the love in the world
@@ -9,8 +9,6 @@ package org.serversass;
  */
 
 import org.junit.Test;
-import org.serversass.Generator;
-import org.serversass.Output;
 
 import java.io.File;
 import java.io.FileReader;
