@@ -12,12 +12,12 @@
         <connection>scm:git:git@github.com:scireum/server-sass.git</connection>
         <developerConnection>scm:git:git@github.com:scireum/server-sass.git</developerConnection>
         <url>git@github.com:scireum/server-sass.git</url>
-        <tag>HEAD</tag>
+        <tag>v1.2</tag>
     </scm>
 
     <groupId>com.scireum</groupId>
     <artifactId>server-sass</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.2</version>
     <packaging>jar</packaging>
     <name>server-sass</name>
     <description>server-sass is a simple implementation of SASS (sass-lang.org)</description>
