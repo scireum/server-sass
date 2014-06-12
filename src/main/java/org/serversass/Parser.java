@@ -182,7 +182,7 @@ public class Parser {
                     if (tokenizer.current().isIdentifier() && tokenizer.next().isSymbol(":")) {
                         MediaFilter attr = new MediaFilter(tokenizer.consume().getContents());
                         tokenizer.consumeExpectedSymbol(":");
-                        attr.setExpression(parseExpression());
+                        attr.setExpression(parseExpression(true));
                         result.addMediaQuery(attr);
                     } else {
                         tokenizer.addError(tokenizer.current(),
@@ -223,7 +223,7 @@ public class Parser {
             if (tokenizer.current().isIdentifier() && tokenizer.next().isSymbol(":")) {
                 Attribute attr = new Attribute(tokenizer.consume().getContents());
                 tokenizer.consumeExpectedSymbol(":");
-                attr.setExpression(parseExpression());
+                attr.setExpression(parseExpression(true));
                 result.addAttribute(attr);
 
                 if (tokenizer.current().isSymbol(";") || !tokenizer.next().isSymbol("}")) {
@@ -243,19 +243,21 @@ public class Parser {
                                        "Unexpected token: '" + tokenizer.current()
                                                                         .getSource() + "'. Expected a mixin to use");
                 }
-                tokenizer.consumeExpectedSymbol("(");
-                // Parse parameters - be as error tolerant as possible
-                while (tokenizer.more() && !tokenizer.current().isSymbol(")", ";", "{", "}")) {
-                    ref.addParameter(parseExpression());
-                    if (tokenizer.current().isSymbol(",")) {
-                        tokenizer.consumeExpectedSymbol(",");
-                    } else if (!tokenizer.current().isSymbol(")")) {
-                        tokenizer.addError(tokenizer.current(),
-                                           "Unexpected token: '" + tokenizer.consume()
-                                                                            .getSource() + "'. Expected a comma between the parameters.");
+                if (tokenizer.current().isSymbol("(")) {
+                    tokenizer.consumeExpectedSymbol("(");
+                    // Parse parameters - be as error tolerant as possible
+                    while (tokenizer.more() && !tokenizer.current().isSymbol(")", ";", "{", "}")) {
+                        ref.addParameter(parseExpression(false));
+                        if (tokenizer.current().isSymbol(",")) {
+                            tokenizer.consumeExpectedSymbol(",");
+                        } else if (!tokenizer.current().isSymbol(")")) {
+                            tokenizer.addError(tokenizer.current(),
+                                               "Unexpected token: '" + tokenizer.consume()
+                                                                                .getSource() + "'. Expected a comma between the parameters.");
+                        }
                     }
+                    tokenizer.consumeExpectedSymbol(")");
                 }
-                tokenizer.consumeExpectedSymbol(")");
                 if (tokenizer.current().isSymbol(";") || !tokenizer.next().isSymbol("}")) {
                     tokenizer.consumeExpectedSymbol(";");
                 }
@@ -357,7 +359,7 @@ public class Parser {
         Variable var = new Variable();
         var.setName(tokenizer.consume().getContents());
         tokenizer.consumeExpectedSymbol(":");
-        var.setValue(parseExpression());
+        var.setValue(parseExpression(true));
         if (tokenizer.current().isSymbol("!") && tokenizer.next().hasContent("default")) {
             var.setDefaultValue(true);
             tokenizer.consume();
@@ -371,25 +373,25 @@ public class Parser {
      * Parses an expression which can be the value of an attribute or media query. Basic numeric operations
      * like +,-,*,/,% are supported. Also " " separated lists will be parsed as ValueList
      */
-    private Expression parseExpression() {
-        Expression result = parseAtom();
+    private Expression parseExpression(boolean accepLists) {
+        Expression result = parseAtom(accepLists);
         while (tokenizer.more()) {
             if (tokenizer.current().isSymbol("+", "-")) {
-                result = new Operation(tokenizer.consume().getTrigger(), result, parseAtom());
+                result = new Operation(tokenizer.consume().getTrigger(), result, parseAtom(false));
             } else if (tokenizer.current().isSymbol("*", "/", "%")) {
                 String operation = tokenizer.consume().getTrigger();
-                Expression next = parseAtom();
+                Expression next = parseAtom(false);
                 result = joinOperations(result, operation, next);
             } else {
                 if (tokenizer.current().isSymbol() && !tokenizer.current().isSymbol("!")) {
                     break;
                 }
                 if (result instanceof ValueList) {
-                    ((ValueList) result).add(parseAtom());
+                    ((ValueList) result).add(parseAtom(accepLists));
                 } else {
                     ValueList list = new ValueList();
                     list.add(result);
-                    list.add(parseAtom());
+                    list.add(parseAtom(accepLists));
                     result = list;
                 }
             }
@@ -420,7 +422,7 @@ public class Parser {
      * Parses an atom. This is either an identifier ("bold"), a number (15px), a string ('OpenSans'), a color
      * (#454545) or another expression in braces.
      */
-    private Expression parseAtom() {
+    private Expression parseAtom(boolean acceptLists) {
         // Parse a number
         if (tokenizer.current().isNumber()) {
             return new Number(tokenizer.consume().getContents());
@@ -437,7 +439,7 @@ public class Parser {
                 fun.setName(tokenizer.consume().getContents());
                 tokenizer.consumeExpectedSymbol("(");
                 while (tokenizer.more() && !tokenizer.current().isSymbol(")", ";", "{", "}")) {
-                    fun.addParameter(parseExpression());
+                    fun.addParameter(parseExpression(false));
                     if (tokenizer.current().isSymbol(",")) {
                         tokenizer.consumeExpectedSymbol(",");
                     } else if (!tokenizer.current().isSymbol(")")) {
@@ -448,7 +450,7 @@ public class Parser {
                 }
                 tokenizer.consumeExpectedSymbol(")");
                 return fun;
-            } else if (tokenizer.next().isSymbol(",")) {
+            } else if (tokenizer.next().isSymbol(",") && acceptLists) {
                 // Parse a value list like Arial,Helvetica
                 StringBuilder sb = new StringBuilder(tokenizer.consume().getSource());
                 while (tokenizer.current().isSymbol(",")) {
@@ -477,7 +479,7 @@ public class Parser {
         // Parse as expression in braces
         if (tokenizer.current().isSymbol("(")) {
             tokenizer.consumeExpectedSymbol("(");
-            Expression result = parseExpression();
+            Expression result = parseExpression(true);
             tokenizer.consumeExpectedSymbol(")");
             if (result instanceof Operation) {
                 ((Operation) result).protect();
@@ -551,7 +553,7 @@ public class Parser {
             if (tokenizer.current().isIdentifier() && tokenizer.next().isSymbol(":")) {
                 Attribute attr = new Attribute(tokenizer.consume().getContents());
                 tokenizer.consumeExpectedSymbol(":");
-                attr.setExpression(parseExpression());
+                attr.setExpression(parseExpression(true));
                 mixin.addAttribute(attr);
 
                 if (tokenizer.current().isSymbol(";") || !tokenizer.next().isSymbol("}")) {

@@ -11,9 +11,7 @@ package org.serversass;
 import org.serversass.ast.*;
 import parsii.tokenizer.ParseException;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -62,6 +60,30 @@ public class Generator {
      */
     private Scope scope = new Scope();
 
+    private File baseDir;
+
+    /**
+     * Generates a new Generator without a directory used for lookups.
+     * <p>
+     * This generator will resolve all imports using the classpath.
+     * </p>
+     */
+    public Generator() {
+
+    }
+
+    /**
+     * Generates a new Generator using the given directory for lookups.
+     * <p/>
+     * This generator will resolve all imports usign the given directory or the  classpath.
+     * </p>
+     *
+     * @param baseDir the directory with contains the imports
+     */
+    public Generator(File baseDir) {
+        this.baseDir = baseDir;
+    }
+
     /**
      * Called to signal a warning, like an invalid operation or parse errors in a source file.
      * <p>
@@ -95,14 +117,31 @@ public class Generator {
      */
     protected Stylesheet resolve(String sheet) {
         try {
-            InputStream is = getClass().getResourceAsStream((sheet.startsWith("/") ? "" : "/") + sheet + (sheet.endsWith(
-                    ".scss") ? "" : ".scss"));
-            if (is == null) {
-                is = getClass().getResourceAsStream((sheet.startsWith("/") ? "" : "/") + "_" + sheet + (sheet.endsWith(
-                        ".scss") ? "" : ".scss"));
-                if (is == null) {
+            sheet = sheet.replace("\\", "/");
+            if (!sheet.endsWith(".scss")) {
+                sheet += ".scss";
+            }
+
+            InputStream is = null;
+            if (baseDir != null) {
+                File file = baseDir;
+                for (String part : sheet.split("/")) {
+                    file = new File(file, part);
+                }
+                if (file.exists() && file.isFile()) {
+                    is = new FileInputStream(file);
+                } else {
                     warn("Cannot resolve '" + sheet + "'. Skipping import.");
                     return null;
+                }
+            } else {
+                is = getClass().getResourceAsStream((sheet.startsWith("/") ? "" : "/") + sheet);
+                if (is == null) {
+                    is = getClass().getResourceAsStream((sheet.startsWith("/") ? "" : "/") + "_" + sheet);
+                    if (is == null) {
+                        warn("Cannot resolve '" + sheet + "'. Skipping import.");
+                        return null;
+                    }
                 }
             }
             try {
