@@ -1,4 +1,4 @@
-/*
+package org.serversass;/*
  * Made with all the love in the world
  * by scireum in Remshalden, Germany
  *
