@@ -166,7 +166,7 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <keyname>aha@scireum.de</keyname>
+                            <keyname>Andreas Haufler &lt;aha@scireum.de&gt;</keyname>
                         </configuration>
                     </plugin>
                     <plugin>
