@@ -1,4 +1,4 @@
-package com.scireum;
+package com.scireum.serversass;
 
 /*
  * Made with all the love in the world
