@@ -9,6 +9,7 @@
 package com.scireum.serversass;
 
 import com.scireum.serversass.ast.*;
+import com.scireum.serversass.ast.Number;
 import parsii.tokenizer.Char;
 import parsii.tokenizer.ParseException;
 import parsii.tokenizer.Token;
@@ -88,7 +89,7 @@ public class Parser {
             }
             // Support vendor specific and class selectors like -moz-border-radius or .test
             if ((input.current().is('-') || input.current().is(':') || input.current().is('.')) && input.next()
-                                                                                                        .isLetter()) {
+                    .isLetter()) {
                 return true;
             }
 
@@ -185,8 +186,8 @@ public class Parser {
                         result.addMediaQuery(attr);
                     } else {
                         tokenizer.addError(tokenizer.current(),
-                                           "Unexpected symbol: '%s'. Expected an attribute filter.",
-                                           tokenizer.current().getSource());
+                                "Unexpected symbol: '%s'. Expected an attribute filter.",
+                                tokenizer.current().getSource());
                     }
                     tokenizer.consumeExpectedSymbol(")");
                 } else {
@@ -239,8 +240,9 @@ public class Parser {
                     ref.setName(tokenizer.consume().getContents());
                 } else {
                     tokenizer.addError(tokenizer.current(),
-                                       "Unexpected token: '" + tokenizer.current()
-                                                                        .getSource() + "'. Expected a mixin to use");
+                            "Unexpected token: '" + tokenizer.current()
+                                    .getSource() + "'. Expected a mixin to use"
+                    );
                 }
                 if (tokenizer.current().isSymbol("(")) {
                     tokenizer.consumeExpectedSymbol("(");
@@ -251,8 +253,9 @@ public class Parser {
                             tokenizer.consumeExpectedSymbol(",");
                         } else if (!tokenizer.current().isSymbol(")")) {
                             tokenizer.addError(tokenizer.current(),
-                                               "Unexpected token: '" + tokenizer.consume()
-                                                                                .getSource() + "'. Expected a comma between the parameters.");
+                                    "Unexpected token: '" + tokenizer.consume()
+                                            .getSource() + "'. Expected a comma between the parameters."
+                            );
                         }
                     }
                     tokenizer.consumeExpectedSymbol(")");
@@ -270,8 +273,9 @@ public class Parser {
                     result.addExtends(tokenizer.consume().getSource());
                 } else {
                     tokenizer.addError(tokenizer.current(),
-                                       "Unexpected token: '" + tokenizer.current()
-                                                                        .getSource() + "'. Expected a selector to include.");
+                            "Unexpected token: '" + tokenizer.current()
+                                    .getSource() + "'. Expected a selector to include."
+                    );
                 }
                 if (tokenizer.current().isSymbol(";") || !tokenizer.next().isSymbol("}")) {
                     tokenizer.consumeExpectedSymbol(";");
@@ -309,16 +313,16 @@ public class Parser {
                     if (!tokenizer.current().isSymbol("]")) {
                         if (!tokenizer.current().isIdentifier()) {
                             tokenizer.addError(tokenizer.current(),
-                                               "Unexpected token: '%s'. Expected an attribute name.",
-                                               tokenizer.current().getSource());
+                                    "Unexpected token: '%s'. Expected an attribute name.",
+                                    tokenizer.current().getSource());
                         }
                         sb.append(tokenizer.consume().getContents());
                     }
                     if (!tokenizer.current().isSymbol("]")) {
                         if (!tokenizer.current().isSymbol("=", "~=", "|=", "^=", "$=", "*=")) {
                             tokenizer.addError(tokenizer.current(),
-                                               "Unexpected token: '%s'. Expected an operation.",
-                                               tokenizer.current().getSource());
+                                    "Unexpected token: '%s'. Expected an operation.",
+                                    tokenizer.current().getSource());
                         }
                         sb.append(tokenizer.consume().getTrigger());
                     }
@@ -327,8 +331,8 @@ public class Parser {
                     }
                     if (!tokenizer.current().isSymbol("]")) {
                         tokenizer.addError(tokenizer.current(),
-                                           "Unexpected token: '%s'. Expected: ']'",
-                                           tokenizer.current().getSource());
+                                "Unexpected token: '%s'. Expected: ']'",
+                                tokenizer.current().getSource());
                     } else {
                         sb.append(tokenizer.consume().getContents());
                     }
@@ -338,8 +342,8 @@ public class Parser {
             } else if (tokenizer.current().isSymbol(">", "+", "~")) {
                 if (!lastWasId || !tokenizer.next().isIdentifier()) {
                     tokenizer.addError(tokenizer.current(),
-                                       "Unexpected token: '%s'. A selector path must not contain two consecutive operators.",
-                                       tokenizer.current().getSource());
+                            "Unexpected token: '%s'. A selector path must not contain two consecutive operators.",
+                            tokenizer.current().getSource());
                 }
                 selector.add(tokenizer.consume().getContents());
                 lastWasId = false;
@@ -424,7 +428,7 @@ public class Parser {
     private Expression parseAtom(boolean acceptLists) {
         // Parse a number
         if (tokenizer.current().isNumber()) {
-            return new com.scireum.serversass.ast.Number(tokenizer.consume().getContents());
+            return new Number(tokenizer.consume().getContents());
         }
         // Parse a color
         if (tokenizer.current().isSpecialIdentifier("#")) {
@@ -443,8 +447,9 @@ public class Parser {
                         tokenizer.consumeExpectedSymbol(",");
                     } else if (!tokenizer.current().isSymbol(")")) {
                         tokenizer.addError(tokenizer.current(),
-                                           "Unexpected token: '" + tokenizer.consume()
-                                                                            .getSource() + "'. Expected a comma between the parameters.");
+                                "Unexpected token: '" + tokenizer.consume()
+                                        .getSource() + "'. Expected a comma between the parameters."
+                        );
                     }
                 }
                 tokenizer.consumeExpectedSymbol(")");
@@ -494,7 +499,7 @@ public class Parser {
 
         // We failed! Report an error and return "" as value (we will fail anyway...)
         tokenizer.addError(tokenizer.current(),
-                           "Unexpected token: '" + tokenizer.consume().getSource() + "'. Expected an expression.");
+                "Unexpected token: '" + tokenizer.consume().getSource() + "'. Expected an expression.");
         return new Value("");
 
     }
@@ -510,16 +515,18 @@ public class Parser {
             mixin.setName(tokenizer.consume().getContents());
         } else {
             tokenizer.addError(tokenizer.current(),
-                               "Unexpected token: '" + tokenizer.current()
-                                                                .getSource() + "'. Expected the name of the mixin as identifier.");
+                    "Unexpected token: '" + tokenizer.current()
+                            .getSource() + "'. Expected the name of the mixin as identifier."
+            );
         }
         // Parse parameter names...
         tokenizer.consumeExpectedSymbol("(");
         while (tokenizer.more()) {
             if (tokenizer.current().isSymbol("{")) {
                 tokenizer.addError(tokenizer.current(),
-                                   "Unexpected token: '" + tokenizer.current()
-                                                                    .getSource() + "'. Expected ')' to complete the parameter list.");
+                        "Unexpected token: '" + tokenizer.current()
+                                .getSource() + "'. Expected ')' to complete the parameter list."
+                );
                 break;
             }
             if (tokenizer.current().isSymbol(")")) {
@@ -530,15 +537,17 @@ public class Parser {
                 mixin.addParameter(tokenizer.consume().getContents());
             } else {
                 tokenizer.addError(tokenizer.current(),
-                                   "Unexpected token: '" + tokenizer.consume()
-                                                                    .getSource() + "'. Expected a parameter name like $parameter.");
+                        "Unexpected token: '" + tokenizer.consume()
+                                .getSource() + "'. Expected a parameter name like $parameter."
+                );
             }
             if (tokenizer.current().isSymbol(",")) {
                 tokenizer.consumeExpectedSymbol(",");
             } else if (!tokenizer.current().isSymbol(")")) {
                 tokenizer.addError(tokenizer.current(),
-                                   "Unexpected token: '" + tokenizer.consume()
-                                                                    .getSource() + "'. Expected a comma between the parameter names.");
+                        "Unexpected token: '" + tokenizer.consume()
+                                .getSource() + "'. Expected a comma between the parameter names."
+                );
             }
         }
 
@@ -560,8 +569,9 @@ public class Parser {
                 }
             } else {
                 tokenizer.addError(tokenizer.current(),
-                                   "Unexpected token: '" + tokenizer.consume()
-                                                                    .getSource() + "'. Expected an attribute definition.");
+                        "Unexpected token: '" + tokenizer.consume()
+                                .getSource() + "'. Expected an attribute definition."
+                );
             }
         }
         tokenizer.consumeExpectedSymbol("}");
@@ -575,8 +585,9 @@ public class Parser {
         tokenizer.consumeExpectedKeyword("import");
         if (!tokenizer.current().isString()) {
             tokenizer.addError(tokenizer.current(),
-                               "Unexpected token: '" + tokenizer.current()
-                                                                .getSource() + "'. Expected a string constant naming an import file.");
+                    "Unexpected token: '" + tokenizer.current()
+                            .getSource() + "'. Expected a string constant naming an import file."
+            );
         } else {
             result.addImport(tokenizer.consume().getContents());
         }

@@ -61,7 +61,7 @@ public class Scope {
      *
      * @param name the variable to lookup
      * @return the value associated with the given name. Uses the parent scope if no variable with the given
-     *         name exists. Returns a {@link com.scireum.serversass.ast.Value} with "" as content, in case the value is completely unknown.
+     *         name exists. Returns a {@link Value} with "" as content, in case the value is completely unknown.
      */
     public Expression get(String name) {
         if (variables.containsKey(name)) {
