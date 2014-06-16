@@ -40,6 +40,6 @@ server-sass is available under:
     <dependency>
       <groupId>com.scireum</groupId>
       <artifactId>server-sass</artifactId>
-      <version>1.0</version>
+      <version>1.3</version>
     </dependency>
 
