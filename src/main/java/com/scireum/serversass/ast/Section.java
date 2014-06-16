@@ -6,11 +6,11 @@
  * http://www.scireum.de - info@scireum.de
  */
 
-package com.scireum.ast;
+package com.scireum.serversass.ast;
 
-import com.scireum.Output;
-import com.scireum.Generator;
-import com.scireum.Scope;
+import com.scireum.serversass.Output;
+import com.scireum.serversass.Generator;
+import com.scireum.serversass.Scope;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -6,7 +6,7 @@
  * http://www.scireum.de - info@scireum.de
  */
 
-package com.scireum.ast;
+package com.scireum.serversass.ast;
 
 /**
  * Represents a variable definition like "$test: 'Hello'"

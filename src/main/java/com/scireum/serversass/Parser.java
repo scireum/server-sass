@@ -6,9 +6,9 @@
  * http://www.scireum.de - info@scireum.de
  */
 
-package com.scireum;
+package com.scireum.serversass;
 
-import com.scireum.ast.*;
+import com.scireum.serversass.ast.*;
 import parsii.tokenizer.Char;
 import parsii.tokenizer.ParseException;
 import parsii.tokenizer.Token;
@@ -424,7 +424,7 @@ public class Parser {
     private Expression parseAtom(boolean acceptLists) {
         // Parse a number
         if (tokenizer.current().isNumber()) {
-            return new com.scireum.ast.Number(tokenizer.consume().getContents());
+            return new com.scireum.serversass.ast.Number(tokenizer.consume().getContents());
         }
         // Parse a color
         if (tokenizer.current().isSpecialIdentifier("#")) {

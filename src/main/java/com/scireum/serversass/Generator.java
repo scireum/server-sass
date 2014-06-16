@@ -6,9 +6,9 @@
  * http://www.scireum.de - info@scireum.de
  */
 
-package com.scireum;
+package com.scireum.serversass;
 
-import com.scireum.ast.*;
+import com.scireum.serversass.ast.*;
 import parsii.tokenizer.ParseException;
 
 import java.io.*;

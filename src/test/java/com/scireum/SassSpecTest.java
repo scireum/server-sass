@@ -8,6 +8,8 @@ package com.scireum;
  * http://www.scireum.de - info@scireum.de
  */
 
+import com.scireum.serversass.Generator;
+import com.scireum.serversass.Output;
 import org.junit.Test;
 
 import java.io.File;

@@ -6,10 +6,10 @@
  * http://www.scireum.de - info@scireum.de
  */
 
-package com.scireum;
+package com.scireum.serversass;
 
-import com.scireum.ast.Expression;
-import com.scireum.ast.Value;
+import com.scireum.serversass.ast.Expression;
+import com.scireum.serversass.ast.Value;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -61,7 +61,7 @@ public class Scope {
      *
      * @param name the variable to lookup
      * @return the value associated with the given name. Uses the parent scope if no variable with the given
-     *         name exists. Returns a {@link com.scireum.ast.Value} with "" as content, in case the value is completely unknown.
+     *         name exists. Returns a {@link com.scireum.serversass.ast.Value} with "" as content, in case the value is completely unknown.
      */
     public Expression get(String name) {
         if (variables.containsKey(name)) {

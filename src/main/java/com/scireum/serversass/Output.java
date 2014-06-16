@@ -1,4 +1,4 @@
-package com.scireum;
+package com.scireum.serversass;
 
 import java.io.IOException;
 import java.io.Writer;

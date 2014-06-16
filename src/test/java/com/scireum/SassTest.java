@@ -1,5 +1,7 @@
 package com.scireum;
 
+import com.scireum.serversass.Generator;
+import com.scireum.serversass.Output;
 import org.junit.Assert;
 import org.junit.Test;
 
