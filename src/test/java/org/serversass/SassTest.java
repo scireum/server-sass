@@ -15,6 +15,7 @@ public class SassTest {
     public void testVariables() {
         compare("variables.scss", "variables.css");
     }
+
     @Test
     public void testEscape() {
         compare("escape.scss", "escape.css");
@@ -47,7 +48,7 @@ public class SassTest {
 
     @Test
     public void testMedia() {
-      //  compare("media.scss", "media.css");
+        compare("media.scss", "media.css");
     }
 
     private void compare(String scssFile, String cssFile) {
