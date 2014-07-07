@@ -74,8 +74,8 @@ public class Generator {
 
     /**
      * Generates a new Generator using the given directory for lookups.
-     * <p/>
-     * This generator will resolve all imports usign the given directory or the  classpath.
+     * <p>
+     * This generator will resolve all imports using the given directory or the  classpath.
      * </p>
      *
      * @param baseDir the directory with contains the imports

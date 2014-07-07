@@ -10,11 +10,11 @@ package org.serversass.ast;
 
 /**
  * Represents an attribute within a section like:
- * <code>
  * <pre>
+ * <code>
  *    font-size: 15px;
- * </pre>
  * </code>
+ * </pre>
  *
  * @author Andreas Haufler (aha@scireum.de)
  * @since 2014/02
