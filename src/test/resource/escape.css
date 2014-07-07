@@ -1,0 +1,4 @@
+.control-group label .input-required:after {
+    content: "\e653";
+    color: #5eb526;
+}

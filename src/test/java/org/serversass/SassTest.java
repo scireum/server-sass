@@ -15,6 +15,10 @@ public class SassTest {
     public void testVariables() {
         compare("variables.scss", "variables.css");
     }
+    @Test
+    public void testEscape() {
+        compare("escape.scss", "escape.css");
+    }
 
     @Test
     public void testNesting() {

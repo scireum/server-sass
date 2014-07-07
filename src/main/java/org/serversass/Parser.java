@@ -69,7 +69,6 @@ public class Parser {
         @Override
         protected boolean handleStringEscape(char separator, char escapeChar, Token stringToken) {
             // All escaped characters will be kept in original form...
-            stringToken.addToContent(escapeChar);
             stringToken.addToContent(input.consume());
             return true;
         }
@@ -101,8 +100,8 @@ public class Parser {
             if (super.isIdentifierChar(current)) {
                 return true;
             }
-            // CSS selectors can contain "-", "." or "#" as long as it is not the last character of the token
-            if ((current.is('-') || current.is('.') || current.is('#')) && !input.next().isWhitepace()) {
+            // CSS selectors can contain "-", ":", "." or "#" as long as it is not the last character of the token
+            if ((current.is('-') || current.is('.') || current.is(':') || current.is('#')) && !input.next().isWhitepace()) {
                 return true;
             }
 
