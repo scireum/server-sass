@@ -3,6 +3,7 @@ package org.serversass;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
@@ -53,7 +54,13 @@ public class SassTest {
 
     private void compare(String scssFile, String cssFile) {
         try {
-            Generator gen = new Generator();
+            Generator gen = new Generator() {
+                @Override
+                public void warn(String message) {
+                    System.err.println(message);
+                }
+
+            };
             gen.importStylesheet(scssFile);
             gen.compile();
 
