@@ -122,27 +122,10 @@ public class Generator {
                 sheet += ".scss";
             }
 
-            InputStream is = null;
-            if (baseDir != null) {
-                File file = baseDir;
-                for (String part : sheet.split("/")) {
-                    file = new File(file, part);
-                }
-                if (file.exists() && file.isFile()) {
-                    is = new FileInputStream(file);
-                } else {
-                    warn("Cannot resolve '" + sheet + "'. Skipping import.");
-                    return null;
-                }
-            } else {
-                is = getClass().getResourceAsStream((sheet.startsWith("/") ? "" : "/") + sheet);
-                if (is == null) {
-                    is = getClass().getResourceAsStream((sheet.startsWith("/") ? "" : "/") + "_" + sheet);
-                    if (is == null) {
-                        warn("Cannot resolve '" + sheet + "'. Skipping import.");
-                        return null;
-                    }
-                }
+            InputStream is = resolveIntoStream(sheet);
+            if (is == null) {
+                warn("Cannot resolve '" + sheet + "'. Skipping import.");
+                return null;
             }
             try {
                 Parser p = new Parser(sheet, new InputStreamReader(is));
@@ -156,6 +139,33 @@ public class Generator {
             warn(String.format("Error importing: %s: %s (%s)", sheet, e.getMessage(), e.getClass().getName()));
         }
         return null;
+    }
+
+    /**
+     * Resolves the given file name into an {@link InputStream}
+     *
+     * @param sheet the file to resolve (already cleaned up by replacing \ with / and appending .scss if necessary).
+     * @return an InputStream for the resolved data or <tt>null</tt> to indicate that the resource cannot be found
+     * @throws IOException in case of an error while resolving or reading the contents
+     */
+    protected InputStream resolveIntoStream(String sheet) throws IOException {
+        if (baseDir != null) {
+            File file = baseDir;
+            for (String part : sheet.split("/")) {
+                file = new File(file, part);
+            }
+            if (file.exists() && file.isFile()) {
+                return new FileInputStream(file);
+            } else {
+                return null;
+            }
+        } else {
+            InputStream is = getClass().getResourceAsStream((sheet.startsWith("/") ? "" : "/") + sheet);
+            if (is == null) {
+                is = getClass().getResourceAsStream((sheet.startsWith("/") ? "" : "/") + "_" + sheet);
+            }
+            return is;
+        }
     }
 
     /**
