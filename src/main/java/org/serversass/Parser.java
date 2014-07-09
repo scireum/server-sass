@@ -307,7 +307,7 @@ public class Parser {
                 return selector;
             } else if (tokenizer.current().isIdentifier() || tokenizer.current().isSpecialIdentifier("#")) {
                 StringBuilder sb = new StringBuilder(tokenizer.consume().getSource());
-                if (tokenizer.current().isSymbol(":")) {
+                while (tokenizer.current().isSymbol(":")) {
                     sb.append(tokenizer.consume().getSource());
                     sb.append(tokenizer.consume().getSource());
                 }

@@ -4,3 +4,8 @@
   test:auto  ;
   size:50px  ;
 }
+
+.footer small:last-child:after {
+  content: " ";
+  padding: 0;
+}
