@@ -1,0 +1,12 @@
+//We expect this to stay same
+.select-file input:checked + span {
+  font-family: 'OpenSansSemibold';
+}
+
+a[x='Hallo'] {
+  font-family: 'OpenSansSemibold';
+}
+
+b[x='Hallo'][y='45'] {
+  font-family: 'OpenSansSemibold';
+}

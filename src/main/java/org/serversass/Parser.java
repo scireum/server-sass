@@ -312,7 +312,9 @@ public class Parser {
                     sb.append(tokenizer.consume().getSource());
                 }
                 while (tokenizer.current().isSymbol("[")) {
+                    // Consume [
                     sb.append(tokenizer.consume().getContents());
+                    // Read attribute name
                     if (!tokenizer.current().isSymbol("]")) {
                         if (!tokenizer.current().isIdentifier()) {
                             tokenizer.addError(tokenizer.current(),
@@ -321,6 +323,7 @@ public class Parser {
                         }
                         sb.append(tokenizer.consume().getContents());
                     }
+                    // Read operator
                     if (!tokenizer.current().isSymbol("]")) {
                         if (!tokenizer.current().isSymbol("=", "~=", "|=", "^=", "$=", "*=")) {
                             tokenizer.addError(tokenizer.current(),
@@ -329,9 +332,11 @@ public class Parser {
                         }
                         sb.append(tokenizer.consume().getTrigger());
                     }
+                    // Read value
                     if (!tokenizer.current().isSymbol("]")) {
                         sb.append(tokenizer.consume().getSource());
                     }
+                    // Consume ]
                     if (!tokenizer.current().isSymbol("]")) {
                         tokenizer.addError(tokenizer.current(),
                                            "Unexpected token: '%s'. Expected: ']'",
@@ -348,7 +353,7 @@ public class Parser {
                                        "Unexpected token: '%s'. A selector path must not contain two consecutive operators.",
                                        tokenizer.current().getSource());
                 }
-                selector.add(tokenizer.consume().getContents());
+                selector.add(tokenizer.consume().getSource());
                 lastWasId = false;
             } else {
                 tokenizer.addError(tokenizer.current(), "Unexpected Token: %s", tokenizer.consume().getSource());
