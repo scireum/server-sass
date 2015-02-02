@@ -26,7 +26,7 @@ gen.generate(out);
 String css = out.toString();
 ```
 If you also need a modern, rock solid web framework which has this module already built in, have
-a look at SIRIUS: https://sirius-lib.net (CSS is auto-generated for .scss files by the AssetsDispatcher: https://github.com/scireum/sirius-web/blob/develop/web/src/sirius/web/dispatch/AssetsDispatcher.java#L156)
+a look at SIRIUS: https://sirius-lib.net (CSS is auto-generated for .scss files by the AssetsDispatcher: https://github.com/scireum/sirius-web/blob/master/src/main/java/sirius/web/dispatch/AssetsDispatcher.java#L168)
 
 server-sass is part of the open source initiative of scireum GmbH (http://www.scireum.de)
 
