@@ -307,10 +307,6 @@ public class Parser {
                 return selector;
             } else if (tokenizer.current().isIdentifier() || tokenizer.current().isSpecialIdentifier("#")) {
                 StringBuilder sb = new StringBuilder(tokenizer.consume().getSource());
-                while (tokenizer.current().isSymbol(":")) {
-                    sb.append(tokenizer.consume().getSource());
-                    sb.append(tokenizer.consume().getSource());
-                }
                 while (tokenizer.current().isSymbol("[")) {
                     // Consume [
                     sb.append(tokenizer.consume().getContents());
@@ -343,6 +339,24 @@ public class Parser {
                                            tokenizer.current().getSource());
                     } else {
                         sb.append(tokenizer.consume().getContents());
+                    }
+                }
+                while (tokenizer.current().isSymbol(":")) {
+                    sb.append(tokenizer.consume().getSource());
+                    sb.append(tokenizer.consume().getSource());
+                    // Consume arguments like :nth-child(2)
+                    if (tokenizer.current().isSymbol("(")) {
+                        sb.append(tokenizer.consume().getSource());
+                        int braces = 1;
+                        while(!tokenizer.current().isEnd() && braces > 0) {
+                            if (tokenizer.current().isSymbol("(")) {
+                                braces++;
+                            }
+                            if (tokenizer.current().isSymbol(")")) {
+                                braces--;
+                            }
+                            sb.append(tokenizer.consume().getSource());
+                        }
                     }
                 }
                 selector.add(sb.toString());

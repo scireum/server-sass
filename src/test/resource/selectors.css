@@ -9,3 +9,15 @@ a[x='Hallo'] {
 b[x='Hallo'][y='45'] {
     font-family: 'OpenSansSemibold';
 }
+
+a:hover {
+    text-decoration: none;
+}
+
+input[type="radio"]:nth-child(2) + span {
+    font-family: 'OpenSansSemibold';
+}
+
+input[type="radio"]:checked + span {
+    font-family: 'OpenSansSemibold';
+}
