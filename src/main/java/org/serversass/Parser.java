@@ -457,7 +457,7 @@ public class Parser {
             return new Value(tokenizer.consume().getSource()); //TODO encode color
         }
         // Parse an identifier or function call
-        if (tokenizer.current().isIdentifier()) {
+        if (tokenizer.current().isIdentifier() || tokenizer.current().isString()) {
             if (tokenizer.next().isSymbol("(")) {
                 // An identifier followed by '(' is a function call...
                 FunctionCall fun = new FunctionCall();
