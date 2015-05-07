@@ -48,7 +48,7 @@ public class Generator {
     /*
      * Contains all media queries
      */
-    private Map<String, Section> mediaQueries = new HashMap<String, Section>();
+    private Map<String, Section> mediaQueries = new LinkedHashMap<String, Section>();
 
     /*
      * Contains all known mixins
