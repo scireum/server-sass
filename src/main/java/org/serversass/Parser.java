@@ -244,8 +244,7 @@ public class Parser {
                 } else {
                     tokenizer.addError(tokenizer.current(),
                                        "Unexpected token: '" + tokenizer.current()
-                                                                        .getSource() + "'. Expected a mixin to use"
-                    );
+                                                                        .getSource() + "'. Expected a mixin to use");
                 }
                 if (tokenizer.current().isSymbol("(")) {
                     tokenizer.consumeExpectedSymbol("(");
@@ -257,8 +256,7 @@ public class Parser {
                         } else if (!tokenizer.current().isSymbol(")")) {
                             tokenizer.addError(tokenizer.current(),
                                                "Unexpected token: '" + tokenizer.consume()
-                                                                                .getSource() + "'. Expected a comma between the parameters."
-                            );
+                                                                                .getSource() + "'. Expected a comma between the parameters.");
                         }
                     }
                     tokenizer.consumeExpectedSymbol(")");
@@ -277,8 +275,7 @@ public class Parser {
                 } else {
                     tokenizer.addError(tokenizer.current(),
                                        "Unexpected token: '" + tokenizer.current()
-                                                                        .getSource() + "'. Expected a selector to include."
-                    );
+                                                                        .getSource() + "'. Expected a selector to include.");
                 }
                 if (tokenizer.current().isSymbol(";") || !tokenizer.next().isSymbol("}")) {
                     tokenizer.consumeExpectedSymbol(";");
@@ -299,13 +296,16 @@ public class Parser {
     private List<String> parseSelector() {
         List<String> selector = new ArrayList<String>();
         boolean lastWasId = false;
+        if (tokenizer.more() && tokenizer.current().isSymbol("&")) {
+            selector.add(tokenizer.consume().getTrigger());
+        }
         while (tokenizer.more()) {
             if (tokenizer.current().isSymbol("{", ",")) {
                 if (selector.isEmpty()) {
                     tokenizer.addError(tokenizer.current(), "Unexpected end of CSS selector");
                 }
                 return selector;
-            } else if (tokenizer.current().isIdentifier() || tokenizer.current().isSpecialIdentifier("#")) {
+            } else if (tokenizer.current().isIdentifier() || tokenizer.current().isSpecialIdentifier("#", "@")) {
                 StringBuilder sb = new StringBuilder(tokenizer.consume().getSource());
                 while (tokenizer.current().isSymbol("[")) {
                     // Consume [
@@ -348,7 +348,7 @@ public class Parser {
                     if (tokenizer.current().isSymbol("(")) {
                         sb.append(tokenizer.consume().getSource());
                         int braces = 1;
-                        while(!tokenizer.current().isEnd() && braces > 0) {
+                        while (!tokenizer.current().isEnd() && braces > 0) {
                             if (tokenizer.current().isSymbol("(")) {
                                 braces++;
                             }
@@ -399,26 +399,22 @@ public class Parser {
      * like +,-,*,/,% are supported. Also " " separated lists will be parsed as ValueList
      */
     private Expression parseExpression(boolean accepLists) {
-        Expression result = parseAtom(accepLists);
+        Expression result = accepLists ? parseAtomList() : parseAtom();
         while (tokenizer.more()) {
             if (tokenizer.current().isSymbol("+", "-")) {
-                result = new Operation(tokenizer.consume().getTrigger(), result, parseAtom(false));
+                result = new Operation(tokenizer.consume().getTrigger(), result, parseAtom());
             } else if (tokenizer.current().isSymbol("*", "/", "%")) {
                 String operation = tokenizer.consume().getTrigger();
-                Expression next = parseAtom(false);
+                Expression next = parseAtom();
                 result = joinOperations(result, operation, next);
             } else {
                 if (tokenizer.current().isSymbol() && !tokenizer.current().isSymbol("!")) {
                     break;
                 }
-                if (result instanceof ValueList) {
-                    ((ValueList) result).add(parseAtom(accepLists));
-                } else {
-                    ValueList list = new ValueList();
-                    list.add(result);
-                    list.add(parseAtom(accepLists));
-                    result = list;
-                }
+                ValueList list = new ValueList(false);
+                list.add(result);
+                list.add(accepLists ? parseAtomList() : parseAtom());
+                result = list;
             }
         }
         return result;
@@ -447,7 +443,28 @@ public class Parser {
      * Parses an atom. This is either an identifier ("bold"), a number (15px), a string ('OpenSans'), a color
      * (#454545) or another expression in braces.
      */
-    private Expression parseAtom(boolean acceptLists) {
+    private Expression parseAtomList() {
+        Expression exp = parseAtom();
+        if (!tokenizer.current().isSymbol(",")) {
+            return exp;
+        }
+
+        ValueList result = new ValueList(true);
+        result.add(exp);
+        while (tokenizer.current().isSymbol(",")) {
+            tokenizer.consume();
+            result.add(parseAtom());
+        }
+
+        return result;
+    }
+
+    /*
+     * Parses an atom. This is either an identifier ("bold"), a number (15px), a string ('OpenSans'), a color
+     * (#454545) or another expression in braces.
+     */
+    private Expression parseAtom() {
+
         // Parse a number
         if (tokenizer.current().isNumber()) {
             return new Number(tokenizer.consume().getContents());
@@ -470,22 +487,11 @@ public class Parser {
                     } else if (!tokenizer.current().isSymbol(")")) {
                         tokenizer.addError(tokenizer.current(),
                                            "Unexpected token: '" + tokenizer.consume()
-                                                                            .getSource() + "'. Expected a comma between the parameters."
-                        );
+                                                                            .getSource() + "'. Expected a comma between the parameters.");
                     }
                 }
                 tokenizer.consumeExpectedSymbol(")");
                 return fun;
-            } else if (tokenizer.next().isSymbol(",") && acceptLists) {
-                // Parse a value list like Arial,Helvetica
-                StringBuilder sb = new StringBuilder(tokenizer.consume().getSource());
-                while (tokenizer.current().isSymbol(",")) {
-                    sb.append(tokenizer.consume().getSource());
-                    if (!tokenizer.current().isSymbol(";", "(", ")", "{", "}")) {
-                        sb.append(tokenizer.consume().getSource());
-                    }
-                }
-                return new Value(sb.toString());
             }
 
             // Neither function or value list -> simple value
@@ -538,8 +544,7 @@ public class Parser {
         } else {
             tokenizer.addError(tokenizer.current(),
                                "Unexpected token: '" + tokenizer.current()
-                                                                .getSource() + "'. Expected the name of the mixin as identifier."
-            );
+                                                                .getSource() + "'. Expected the name of the mixin as identifier.");
         }
         // Parse parameter names...
         tokenizer.consumeExpectedSymbol("(");
@@ -547,8 +552,7 @@ public class Parser {
             if (tokenizer.current().isSymbol("{")) {
                 tokenizer.addError(tokenizer.current(),
                                    "Unexpected token: '" + tokenizer.current()
-                                                                    .getSource() + "'. Expected ')' to complete the parameter list."
-                );
+                                                                    .getSource() + "'. Expected ')' to complete the parameter list.");
                 break;
             }
             if (tokenizer.current().isSymbol(")")) {
@@ -560,16 +564,14 @@ public class Parser {
             } else {
                 tokenizer.addError(tokenizer.current(),
                                    "Unexpected token: '" + tokenizer.consume()
-                                                                    .getSource() + "'. Expected a parameter name like $parameter."
-                );
+                                                                    .getSource() + "'. Expected a parameter name like $parameter.");
             }
             if (tokenizer.current().isSymbol(",")) {
                 tokenizer.consumeExpectedSymbol(",");
             } else if (!tokenizer.current().isSymbol(")")) {
                 tokenizer.addError(tokenizer.current(),
                                    "Unexpected token: '" + tokenizer.consume()
-                                                                    .getSource() + "'. Expected a comma between the parameter names."
-                );
+                                                                    .getSource() + "'. Expected a comma between the parameter names.");
             }
         }
 
@@ -592,8 +594,7 @@ public class Parser {
             } else {
                 tokenizer.addError(tokenizer.current(),
                                    "Unexpected token: '" + tokenizer.consume()
-                                                                    .getSource() + "'. Expected an attribute definition."
-                );
+                                                                    .getSource() + "'. Expected an attribute definition.");
             }
         }
         tokenizer.consumeExpectedSymbol("}");
@@ -608,8 +609,7 @@ public class Parser {
         if (!tokenizer.current().isString()) {
             tokenizer.addError(tokenizer.current(),
                                "Unexpected token: '" + tokenizer.current()
-                                                                .getSource() + "'. Expected a string constant naming an import file."
-            );
+                                                                .getSource() + "'. Expected a string constant naming an import file.");
         } else {
             result.addImport(tokenizer.consume().getContents());
         }

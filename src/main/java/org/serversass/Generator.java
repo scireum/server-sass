@@ -231,7 +231,12 @@ public class Generator {
                 for (int i = stack.size() - 1; i >= 0; i--) {
                     Section parent = stack.get(i);
                     if (!parent.getSelectors().isEmpty()) {
-                        selector.addAll(0, parent.getSelectors().get(0));
+                        List<String> parentSelectors = parent.getSelectors().get(0);
+                        if (selector.size() > 1 && !parentSelectors.isEmpty() && "&".equals(selector.get(0))) {
+                            combineSelectors(selector, parentSelectors);
+                        } else {
+                            selector.addAll(0, parentSelectors);
+                        }
                     }
                 }
                 // Selectors with only one element can be referenced by @extend
@@ -280,6 +285,22 @@ public class Generator {
 
         // Delete subsections - no longer necessary (and not supported by css)
         section.getSubSections().clear();
+    }
+
+    /*
+     * If a child selector starts with & e.g. &.test we have to marry the last element of
+     * the parent selector with the first element of the child selector to create
+     * "ul nav.test" (if the parent as "ul nav"). Without the & this would become
+     * "ul nav .test"...
+     */
+    private void combineSelectors(List<String> selector, List<String> parentSelectors) {
+        String firstChild = selector.get(1);
+        List<String> selectorsToAdd = new ArrayList<String>(parentSelectors);
+        selector.remove(0);
+        selector.remove(0);
+        selector.add(0, selectorsToAdd.get(0) + firstChild);
+        selectorsToAdd.remove(0);
+        selector.addAll(selectorsToAdd);
     }
 
     /*

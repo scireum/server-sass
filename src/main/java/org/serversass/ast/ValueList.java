@@ -22,11 +22,15 @@ import java.util.List;
  */
 public class ValueList extends Expression {
     private List<Expression> elements = new ArrayList<Expression>();
+    private boolean keepCommas = false;
 
     /**
      * Creates a new and empty value list
+     *
+     * @param keepCommas determines if commas are kept in the output or not
      */
-    public ValueList() {
+    public ValueList(boolean keepCommas) {
+        this.keepCommas = keepCommas;
     }
 
 
@@ -35,7 +39,7 @@ public class ValueList extends Expression {
         StringBuilder sb = new StringBuilder();
         for (Expression expr : elements) {
             if (sb.length() > 0) {
-                sb.append(" ");
+                sb.append(keepCommas ? "," : " ");
             }
             sb.append(expr);
         }
@@ -72,7 +76,7 @@ public class ValueList extends Expression {
 
     @Override
     public Expression eval(Scope scope, Generator gen) {
-        ValueList result = new ValueList();
+        ValueList result = new ValueList(keepCommas);
         for (Expression expr : elements) {
             result.elements.add(expr.eval(scope, gen));
         }
