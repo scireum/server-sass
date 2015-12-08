@@ -17,7 +17,7 @@
 
     <groupId>com.scireum</groupId>
     <artifactId>server-sass</artifactId>
-    <version>1.4.1</version>
+    <version>1.4.2</version>
     <packaging>jar</packaging>
     <name>server-sass</name>
     <description>server-sass is a simple implementation of SASS (sass-lang.org)</description>

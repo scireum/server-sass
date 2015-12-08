@@ -21,3 +21,7 @@ nav a {
 nav.test {
     color: #FF0000;
 }
+
+nav:hover {
+    color: #FFFF00;
+}

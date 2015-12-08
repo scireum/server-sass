@@ -111,6 +111,7 @@ public class Parser {
         protected boolean isSymbolCharacter(Char ch) {
             return super.isSymbolCharacter(ch) && !ch.is('#');
         }
+
     }
 
     private final SassTokenizer tokenizer;
@@ -298,6 +299,13 @@ public class Parser {
         boolean lastWasId = false;
         if (tokenizer.more() && tokenizer.current().isSymbol("&")) {
             selector.add(tokenizer.consume().getTrigger());
+        }
+        if (tokenizer.more() && tokenizer.current().isSymbol("&:")) {
+            tokenizer.consume();
+            if (tokenizer.current().is(Token.TokenType.ID)) {
+                selector.add("&");
+                selector.add(":" + tokenizer.consume().getContents());
+            }
         }
         while (tokenizer.more()) {
             if (tokenizer.current().isSymbol("{", ",")) {
