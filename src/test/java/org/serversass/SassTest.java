@@ -53,6 +53,16 @@ public class SassTest {
     }
 
     @Test
+    public void testFonts() {
+        compare("fonts.scss", "fonts.css");
+    }
+
+    @Test
+    public void testColors() {
+//        compare("colors.scss", "colors.css");
+    }
+
+    @Test
     public void testMedia() {
         compare("media.scss", "media.css");
     }

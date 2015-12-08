@@ -4,6 +4,10 @@ nav ul {
     list-style: none;
 }
 
+nav ul li {
+    color: #FF00FF;
+}
+
 nav li {
     display: inline-block;
 }

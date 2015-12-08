@@ -228,8 +228,8 @@ public class Generator {
             }
             // Expand all selectors with those of the parents (flatten nesting)
             for (List<String> selector : section.getSelectors()) {
-                for (int i = stack.size() - 1; i >= 0; i--) {
-                    Section parent = stack.get(i);
+                if (!stack.isEmpty()) {
+                    Section parent = stack.get(stack.size() - 1);
                     if (!parent.getSelectors().isEmpty()) {
                         List<String> parentSelectors = parent.getSelectors().get(0);
                         if (selector.size() > 1 && !parentSelectors.isEmpty() && "&".equals(selector.get(0))) {
@@ -258,8 +258,8 @@ public class Generator {
             // and create a pseudo-secion covering these attributes
             if (!section.getAttributes().isEmpty()) {
                 Section copy = new Section();
-                for (int i = stack.size() - 1; i >= 0; i--) {
-                    Section parent = stack.get(i);
+                if (!stack.isEmpty()) {
+                    Section parent = stack.get(stack.size() - 1);
                     if (copy.getSelectors().isEmpty()) {
                         copy.getSelectors().addAll(parent.getSelectors());
                     } else if (!parent.getSelectors().isEmpty()) {
