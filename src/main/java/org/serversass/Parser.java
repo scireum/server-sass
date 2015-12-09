@@ -225,14 +225,8 @@ public class Parser {
             }
             // Parse "normal" attributes like "font-weight: bold;"
             if (tokenizer.current().isIdentifier() && tokenizer.next().isSymbol(":")) {
-                Attribute attr = new Attribute(tokenizer.consume().getContents());
-                tokenizer.consumeExpectedSymbol(":");
-                attr.setExpression(parseExpression(true));
+                Attribute attr = parseAttribute();
                 result.addAttribute(attr);
-
-                if (tokenizer.current().isSymbol(";") || !tokenizer.next().isSymbol("}")) {
-                    tokenizer.consumeExpectedSymbol(";");
-                }
             } else if (tokenizer.current().isKeyword("media")) {
                 // Take care of @media sub sections
                 result.addSubSection(parseSection(true));
@@ -252,13 +246,7 @@ public class Parser {
                     // Parse parameters - be as error tolerant as possible
                     while (tokenizer.more() && !tokenizer.current().isSymbol(")", ";", "{", "}")) {
                         ref.addParameter(parseExpression(false));
-                        if (tokenizer.current().isSymbol(",")) {
-                            tokenizer.consumeExpectedSymbol(",");
-                        } else if (!tokenizer.current().isSymbol(")")) {
-                            tokenizer.addError(tokenizer.current(),
-                                               "Unexpected token: '" + tokenizer.consume()
-                                                                                .getSource() + "'. Expected a comma between the parameters.");
-                        }
+                        consumeExpectedComma();
                     }
                     tokenizer.consumeExpectedSymbol(")");
                 }
@@ -288,6 +276,17 @@ public class Parser {
         }
         tokenizer.consumeExpectedSymbol("}");
         return result;
+    }
+
+    private Attribute parseAttribute() {
+        Attribute attr = new Attribute(tokenizer.consume().getContents());
+        tokenizer.consumeExpectedSymbol(":");
+        attr.setExpression(parseExpression(true));
+
+        if (tokenizer.current().isSymbol(";") || !tokenizer.next().isSymbol("}")) {
+            tokenizer.consumeExpectedSymbol(";");
+        }
+        return attr;
     }
 
     /*
@@ -490,13 +489,7 @@ public class Parser {
                 tokenizer.consumeExpectedSymbol("(");
                 while (tokenizer.more() && !tokenizer.current().isSymbol(")", ";", "{", "}")) {
                     fun.addParameter(parseExpression(false));
-                    if (tokenizer.current().isSymbol(",")) {
-                        tokenizer.consumeExpectedSymbol(",");
-                    } else if (!tokenizer.current().isSymbol(")")) {
-                        tokenizer.addError(tokenizer.current(),
-                                           "Unexpected token: '" + tokenizer.consume()
-                                                                            .getSource() + "'. Expected a comma between the parameters.");
-                    }
+                    consumeExpectedComma();
                 }
                 tokenizer.consumeExpectedSymbol(")");
                 return fun;
@@ -538,6 +531,16 @@ public class Parser {
                            "Unexpected token: '" + tokenizer.consume().getSource() + "'. Expected an expression.");
         return new Value("");
 
+    }
+
+    private void consumeExpectedComma() {
+        if (tokenizer.current().isSymbol(",")) {
+            tokenizer.consumeExpectedSymbol(",");
+        } else if (!tokenizer.current().isSymbol(")")) {
+            tokenizer.addError(tokenizer.current(),
+                               "Unexpected token: '" + tokenizer.consume()
+                                                                .getSource() + "'. Expected a comma between the parameters.");
+        }
     }
 
     /*
@@ -591,14 +594,8 @@ public class Parser {
                 return mixin;
             }
             if (tokenizer.current().isIdentifier() && tokenizer.next().isSymbol(":")) {
-                Attribute attr = new Attribute(tokenizer.consume().getContents());
-                tokenizer.consumeExpectedSymbol(":");
-                attr.setExpression(parseExpression(true));
+                Attribute attr = parseAttribute();
                 mixin.addAttribute(attr);
-
-                if (tokenizer.current().isSymbol(";") || !tokenizer.next().isSymbol("}")) {
-                    tokenizer.consumeExpectedSymbol(";");
-                }
             } else {
                 tokenizer.addError(tokenizer.current(),
                                    "Unexpected token: '" + tokenizer.consume()
