@@ -27,7 +27,7 @@ public class ColorTest {
         assertEquals(0, hsl.getL(), Color.EPSILON);
 
 
-        assertEquals("#000000", hsl.getColor().toString());
+        assertEquals("#000", hsl.getColor().toString());
     }
 
     @Test
