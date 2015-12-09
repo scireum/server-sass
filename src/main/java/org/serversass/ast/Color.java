@@ -127,15 +127,20 @@ public class Color extends Expression {
      */
     public Color(String hexString) {
         Matcher m = RGB_HEX_PATTERN.matcher(hexString);
-        if (!m.matches()) {
-            m = SHORT_RGB_HEX_PATTERN.matcher(hexString);
-            if (!m.matches()) {
-                throw new IllegalArgumentException("Cannot parse '" + hexString + "' as hex color. Expected a pattern like #FF00FF");
-            }
+        if (m.matches()) {
+            r = Integer.parseInt(m.group(1).toLowerCase(), 16);
+            g = Integer.parseInt(m.group(2).toLowerCase(), 16);
+            b = Integer.parseInt(m.group(3).toLowerCase(), 16);
+            return;
         }
-        r = Integer.parseInt(m.group(1).toLowerCase(), 16);
-        g = Integer.parseInt(m.group(2).toLowerCase(), 16);
-        b = Integer.parseInt(m.group(3).toLowerCase(), 16);
+        m = SHORT_RGB_HEX_PATTERN.matcher(hexString);
+        if (m.matches()) {
+            r = Integer.parseInt(m.group(1).toLowerCase() + m.group(1).toLowerCase(), 16);
+            g = Integer.parseInt(m.group(2).toLowerCase() + m.group(2).toLowerCase(), 16);
+            b = Integer.parseInt(m.group(3).toLowerCase() + m.group(3).toLowerCase(), 16);
+        } else {
+            throw new IllegalArgumentException("Cannot parse '" + hexString + "' as hex color. Expected a pattern like #FF00FF");
+        }
     }
 
     /**
@@ -301,11 +306,23 @@ public class Color extends Expression {
     public String toString() {
         if (a != 0) {
             return "rgba(" + r + "," + g + "," + b + "," + a + ")";
-        } else if (r < 16 && g < 16 && b < 16) {
-            return "#" + Integer.toHexString(r) + Integer.toHexString(g) + Integer.toHexString(b);
         } else {
-            return "#" + paddedHex(r) + paddedHex(g) + paddedHex(b);
+            String result = "#" + paddedHex(r) + paddedHex(g) + paddedHex(b);
+            if (canBeExpressedAs3DigitHex(result)) {
+                return computeThreeDigitHex(result);
+            } else {
+                return result;
+            }
         }
+    }
+
+    private String computeThreeDigitHex(String result) {
+        return "#" + result.charAt(1) + result.charAt(3) + result.charAt(5);
+    }
+
+    private boolean canBeExpressedAs3DigitHex(String result) {
+        return result.charAt(1) == result.charAt(2) && result.charAt(3) == result.charAt(4) && result.charAt(5) == result
+                .charAt(6);
     }
 
     private String paddedHex(int value) {

@@ -5,7 +5,7 @@ nav ul {
 }
 
 nav ul li {
-    color: #ff00ff;
+    color: #f0f;
 }
 
 nav li {
@@ -19,11 +19,11 @@ nav a {
 }
 
 nav.test {
-    color: #ff0000;
+    color: #f00;
 }
 
 nav:hover {
-    color: #ffff00;
+    color: #ff0;
 }
 
 .table tbody tr.warning td {

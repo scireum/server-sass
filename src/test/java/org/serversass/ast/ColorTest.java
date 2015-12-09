@@ -37,7 +37,7 @@ public class ColorTest {
         assertEquals(0, hsl.getS(), Color.EPSILON);
         assertEquals(1, hsl.getL(), Color.EPSILON);
 
-        assertEquals("#ffffff", hsl.getColor().toString());
+        assertEquals("#fff", hsl.getColor().toString());
     }
 
     @Test
@@ -47,7 +47,7 @@ public class ColorTest {
         assertEquals(1, hsl.getS(), Color.EPSILON);
         assertEquals(0.5, hsl.getL(), Color.EPSILON);
 
-        assertEquals("#ff0000", hsl.getColor().toString());
+        assertEquals("#f00", hsl.getColor().toString());
     }
 
     @Test
@@ -57,7 +57,7 @@ public class ColorTest {
         assertEquals(1, hsl.getS(), Color.EPSILON);
         assertEquals(0.5, hsl.getL(), Color.EPSILON);
 
-        assertEquals("#ff00ff", hsl.getColor().toString());
+        assertEquals("#f0f", hsl.getColor().toString());
     }
 
     @Test
@@ -67,7 +67,7 @@ public class ColorTest {
         assertEquals(1, hsl.getS(), Color.EPSILON);
         assertEquals(0.5, hsl.getL(), Color.EPSILON);
 
-        assertEquals("#00ffff", hsl.getColor().toString());
+        assertEquals("#0ff", hsl.getColor().toString());
     }
 
     @Test
