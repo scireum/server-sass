@@ -83,6 +83,60 @@ public class FunctionCall extends Expression {
         return parameters;
     }
 
+    /**
+     * Returns the parameter at the expected index.
+     *
+     * @param index the number of the parameter to access
+     * @return the expression representing at the given index
+     * @throws IllegalArgumentException if the index is out of bounds
+     */
+    public Expression getExpectedParam(int index) {
+        if (parameters.size() <= index) {
+            throw new IllegalArgumentException("Parameter index out of bounds: " + index + ". Function call: " + this);
+        }
+
+        return parameters.get(index);
+    }
+
+    /**
+     * Returns the parameter casted as a {@link Color} at the expected index.
+     *
+     * @param index the number of the parameter to access
+     * @return the expression representing at the given index
+     * @throws IllegalArgumentException if the index is out of bounds or if the parameter isn't a color
+     */
+    public Color getExpectedColorParam(int index) {
+        Expression expr = getExpectedParam(index);
+        if (!(expr instanceof Color)) {
+            throw new IllegalArgumentException("Parameter " + index + " isn't a color. Function call: " + this);
+
+        }
+
+        return (Color) expr;
+    }
+
+    /**
+     * Returns the parameter at the expected index converted to an int.
+     *
+     * @param index the number of the parameter to access
+     * @return the expression representing at the given index
+     * @throws IllegalArgumentException if the index is out of bounds or not a valid integer
+     */
+    public int getExpectedIntParam(int index) {
+        return Integer.parseInt(getExpectedParam(index).toString().replace("%", ""));
+    }
+
+    /**
+     * Returns the parameter at the expected index converted to an float.
+     *
+     * @param index the number of the parameter to access
+     * @return the expression representing at the given index
+     * @throws IllegalArgumentException if the index is out of bounds or not a valid decimal number
+     */
+    public float getExpectedFloatParam(int index) {
+        return Float.parseFloat(getExpectedParam(index).toString());
+    }
+
     @Override
     public boolean isConstant() {
         return false;

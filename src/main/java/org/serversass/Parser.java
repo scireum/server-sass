@@ -478,7 +478,7 @@ public class Parser {
         }
         // Parse a color
         if (tokenizer.current().isSpecialIdentifier("#")) {
-            return new Value(tokenizer.consume().getSource()); //TODO encode color
+            return new Color(tokenizer.consume().getSource());
         }
         // Parse an identifier or function call
         if (tokenizer.current().isIdentifier() || tokenizer.current().isString()) {

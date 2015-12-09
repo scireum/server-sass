@@ -59,7 +59,7 @@ public class SassTest {
 
     @Test
     public void testColors() {
-//        compare("colors.scss", "colors.css");
+        compare("colors.scss", "colors.css");
     }
 
     @Test
