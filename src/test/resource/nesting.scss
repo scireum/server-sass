@@ -22,3 +22,9 @@ nav {
     color: #FFFF00;
   }
 }
+
+.table tbody tr {
+  &.warning td {
+    background-color: #faedbb;
+  }
+}

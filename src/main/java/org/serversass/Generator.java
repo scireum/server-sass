@@ -12,6 +12,7 @@ import org.serversass.ast.*;
 import parsii.tokenizer.ParseException;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
@@ -295,12 +296,13 @@ public class Generator {
      */
     private void combineSelectors(List<String> selector, List<String> parentSelectors) {
         String firstChild = selector.get(1);
+        selector.remove(0);
+        selector.remove(0);
         List<String> selectorsToAdd = new ArrayList<String>(parentSelectors);
-        selector.remove(0);
-        selector.remove(0);
-        selector.add(0, selectorsToAdd.get(0) + firstChild);
-        selectorsToAdd.remove(0);
-        selector.addAll(selectorsToAdd);
+        String lastParent = selectorsToAdd.get(selectorsToAdd.size() - 1);
+        selectorsToAdd.remove(selectorsToAdd.size() - 1);
+        selector.add(0, lastParent + firstChild);
+        selector.addAll(0, selectorsToAdd);
     }
 
     /*
@@ -432,6 +434,19 @@ public class Generator {
      * @return the result of the evaluation
      */
     public Expression evaluateFunction(FunctionCall call) {
+        try {
+            return (Expression) Functions.class.getDeclaredMethod(call.getName()
+                                                                      .toLowerCase()
+                                                                      .replaceAll("[^a-z0-9]", ""),
+                                                                  Generator.class,
+                                                                  FunctionCall.class).invoke(null, this, call);
+        } catch (NoSuchMethodException e) {
+            return new Value(call.toString());
+        } catch (InvocationTargetException e) {
+            warn("Cannot execute function: " + call + " - " + e.getCause().getMessage());
+        } catch (Throwable e) {
+            warn("Cannot execute function: " + call + " - " + e.getMessage());
+        }
         return new Value(call.toString());
     }
 }
