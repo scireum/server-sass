@@ -43,7 +43,7 @@ public class Color extends Expression {
         }
 
         /**
-         * Updates the hue
+         * Updates the hue.
          *
          * @param h the new hue in degrees. Is automatically fixed to match the 0..360 degree range
          */
@@ -76,7 +76,7 @@ public class Color extends Expression {
         }
 
         /**
-         * Returns the hue
+         * Returns the hue.
          *
          * @return the hue in degrees (0..360)
          */
@@ -85,7 +85,7 @@ public class Color extends Expression {
         }
 
         /**
-         * Returns the saturation
+         * Returns the saturation.
          *
          * @return the saturation (0..1)
          */
@@ -95,7 +95,7 @@ public class Color extends Expression {
 
 
         /**
-         * Returns the lightness
+         * Returns the lightness.
          *
          * @return the lightness (0..1)
          */
@@ -105,7 +105,7 @@ public class Color extends Expression {
 
         /**
          * Converts the color back to a new RGB color.
-         * <p/>
+         * <p>
          * If the original color from which this HSL value was obtained had an non 0 alpha channel, this
          * value is preserved for the color returned here.
          *
