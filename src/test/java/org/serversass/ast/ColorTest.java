@@ -12,11 +12,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-;
-
-/**
- * Created by aha on 09.12.15.
- */
 public class ColorTest {
 
     @Test

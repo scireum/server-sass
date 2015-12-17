@@ -103,7 +103,6 @@ public class Generator {
      * @param message the message which is reported
      */
     public void debug(String message) {
-
     }
 
     /**

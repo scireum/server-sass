@@ -87,11 +87,8 @@ public class Parser {
                 return true;
             }
             // Support vendor specific and class selectors like -moz-border-radius or .test
-            if ((input.current().is('-') || input.current().is('.')) && input.next().isLetter()) {
-                return true;
-            }
+            return (input.current().is('-') || input.current().is('.')) && input.next().isLetter();
 
-            return false;
         }
 
         @Override
@@ -100,11 +97,8 @@ public class Parser {
                 return true;
             }
             // CSS selectors can contain "-", "." or "#" as long as it is not the last character of the token
-            if ((current.is('-') || current.is('.') || current.is('#')) && !input.next().isWhitepace()) {
-                return true;
-            }
+            return (current.is('-') || current.is('.') || current.is('#')) && !input.next().isWhitepace();
 
-            return false;
         }
 
         @Override

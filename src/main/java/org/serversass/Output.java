@@ -47,7 +47,6 @@ public class Output {
         return this;
     }
 
-
     /**
      * Outputs an indented line break or a " " in case of minified output.
      *
