@@ -1,0 +1,13 @@
+$primary-color: #FF0000;
+$secondary-color: rgba(0,0,255,0.5);
+$test-color: rgb(100,100,100);
+
+$lighter: lighten($test-color, 10%);
+$darker:  darken($test-color, 10%);
+
+div {
+  color1: $primary-color;
+  color2: $lighter;
+  color3: $darker;
+  color4: adjust-hue($secondary-color, 120);
+}
