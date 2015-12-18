@@ -21,3 +21,7 @@ input[type="radio"]:nth-child(2) + span {
 input[type="radio"]:checked + span {
     font-family: 'OpenSansSemibold';
 }
+
+.nav-list[class^="icon-"], .nav-list[class*=" icon-"] {
+    margin-right: 5px;
+}

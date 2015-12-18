@@ -112,6 +112,16 @@ public class Parser {
         protected boolean isSymbolCharacter(Char ch) {
             return super.isSymbolCharacter(ch) && !ch.is('#');
         }
+
+        @Override
+        protected Token fetchSymbol() {
+            Token result = Token.create(Token.TokenType.SYMBOL, input.current());
+            result.addToTrigger(input.consume());
+            while (isSymbolCharacter(input.current())) {
+                result.addToTrigger(input.consume());
+            }
+            return result;
+        }
     }
 
     private final SassTokenizer tokenizer;
@@ -224,9 +234,7 @@ public class Parser {
             ref.setName(tokenizer.consume().getContents());
         } else {
             tokenizer.addError(tokenizer.current(),
-                               "Unexpected token: '"
-                               + tokenizer.current().getSource()
-                               + "'. Expected a mixin to use");
+                               "Unexpected token: '" + tokenizer.current().getSource() + "'. Expected a mixin to use");
         }
         if (tokenizer.current().isSymbol("(")) {
             tokenizer.consumeExpectedSymbol("(");
