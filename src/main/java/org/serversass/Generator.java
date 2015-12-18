@@ -49,34 +49,34 @@ public class Generator {
     /*
      * Prevents circular imports
      */
-    private Set<String> importedSheets = new TreeSet<String>();
+    protected Set<String> importedSheets = new TreeSet<>();
 
     /*
      * Contains all sections which will be part of the output
      */
-    private List<Section> sections = new ArrayList<Section>();
+    protected List<Section> sections = new ArrayList<>();
 
     /*
      * Contains all sections which can be referenced via @extend
      */
-    private Map<String, Section> extensibleSections = new HashMap<String, Section>();
+    protected Map<String, Section> extensibleSections = new HashMap<>();
 
     /*
      * Contains all media queries
      */
-    private Map<String, Section> mediaQueries = new LinkedHashMap<String, Section>();
+    protected Map<String, Section> mediaQueries = new LinkedHashMap<>();
 
     /*
      * Contains all known mixins
      */
-    private Map<String, Mixin> mixins = new HashMap<String, Mixin>();
+    protected Map<String, Mixin> mixins = new HashMap<>();
 
     /*
      * Contains the evaluation context (all variables)
      */
-    private Scope scope = new Scope();
+    protected Scope scope = new Scope();
 
-    private File baseDir;
+    protected File baseDir;
 
     /**
      * Generates a new Generator without a directory used for lookups.
