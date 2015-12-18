@@ -11,13 +11,10 @@ package org.serversass.ast;
 /**
  * Represents an attribute within a section like:
  * <pre>
- * <code>
+ * {@code
  *    font-size: 15px;
- * </code>
+ * }
  * </pre>
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2014/02
  */
 public class Attribute {
     private String name;

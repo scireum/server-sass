@@ -16,11 +16,8 @@ import java.util.List;
 
 /**
  * Represents a list of values.
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2014(02
  */
-public class ValueList extends Expression {
+public class ValueList implements Expression {
     private List<Expression> elements = new ArrayList<Expression>();
     private boolean keepCommas = false;
 
@@ -32,7 +29,6 @@ public class ValueList extends Expression {
     public ValueList(boolean keepCommas) {
         this.keepCommas = keepCommas;
     }
-
 
     @Override
     public String toString() {

@@ -19,9 +19,6 @@ import java.util.List;
 /**
  * Represents a section which is a list of selectors and a group of attributes. This is used for both, contain parsed
  * SASS section (with nested sections) as well as flattened CSS sections and media queries.
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2014/02
  */
 public class Section {
     private List<List<String>> selectors = new ArrayList<List<String>>();

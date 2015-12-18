@@ -12,6 +12,9 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * Tests the color functions
+ */
 public class ColorTest {
 
     @Test

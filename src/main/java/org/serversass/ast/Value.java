@@ -13,11 +13,8 @@ import org.serversass.Scope;
 
 /**
  * Represents a plain value.
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2014/02
  */
-public class Value extends Expression {
+public class Value implements Expression {
     private String contents;
 
     /**

@@ -10,9 +10,6 @@ package org.serversass.ast;
 
 /**
  * Represents a variable definition like "$test: 'Hello'"
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2014/02
  */
 public class Variable {
 

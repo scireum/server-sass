@@ -17,6 +17,8 @@ import org.serversass.ast.FunctionCall;
  */
 public class Functions {
 
+    private Functions() {
+    }
 
     private static Expression changeLighteness(Color color, int changeInPercent) {
         Color.HSL hsl = color.getHSL();
@@ -121,6 +123,4 @@ public class Functions {
         int decrease = input.getExpectedIntParam(1);
         return changeSaturation(color, -decrease);
     }
-
-
 }

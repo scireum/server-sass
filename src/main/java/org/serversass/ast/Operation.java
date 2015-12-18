@@ -15,11 +15,8 @@ import java.util.Locale;
 
 /**
  * Represents a binary operation.
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2014/02
  */
-public class Operation extends Expression {
+public class Operation implements Expression {
     private String operation;
     private Expression left;
     private Expression right;
@@ -104,7 +101,7 @@ public class Operation extends Expression {
     public Expression eval(Scope scope, Generator gen) {
         Expression newLeft = left.eval(scope, gen);
         Expression newRight = right.eval(scope, gen);
-        if ((newRight instanceof Number) && (newRight instanceof Number)) {
+        if ((newLeft instanceof Number) && (newRight instanceof Number)) {
             Number l = (Number) newLeft;
             Number r = (Number) newRight;
 
@@ -121,34 +118,19 @@ public class Operation extends Expression {
                 rUnit = "";
             }
 
-            double value = 0d;
-            if ("/".equals(operation)) {
-                if (rVal != 0) {
-                    value = lVal / rVal;
-                } else {
-                    gen.warn(String.format("Cannot evaluate: '%s': division by 0. Defaulting to 0 as result", this));
-                }
-            } else if ("*".equals(operation)) {
-                value = lVal * rVal;
-            } else if ("%".equals(operation)) {
-                value = lVal % rVal;
-            } else if ("+".equals(operation)) {
-                value = lVal + rVal;
-            } else if ("-".equals(operation)) {
-                value = lVal - rVal;
-            }
+            double value = evalOperation(gen, lVal, rVal);
 
             String unit = "";
             if (!"/".equals(operation)) {
-                if ("%".equals(l.getUnit()) && ("%".equals(r.getUnit()) || "".equals(r.getUnit())) || "".equals(l.getUnit()) && "%"
-                        .equals(r.getUnit())) {
+                if ("%".equals(l.getUnit()) && ("%".equals(r.getUnit()) || r.getUnit() != null && r.getUnit().isEmpty())
+                    || l.getUnit() != null && l.getUnit().isEmpty() && "%".equals(r.getUnit())) {
                     value *= 100;
                     unit = "%";
                 } else {
                     unit = lUnit;
-                    if ("".equals(unit)) {
+                    if (unit != null && unit.isEmpty()) {
                         unit = rUnit;
-                    } else if (!"".equals(rUnit) && !lUnit.equals(rUnit)) {
+                    } else if (rUnit != null && !rUnit.isEmpty() && !lUnit.equals(rUnit)) {
                         gen.warn(String.format("Incompatible units mixed in expression '%s': Using left unit for result",
                                                this));
                     }
@@ -162,5 +144,25 @@ public class Operation extends Expression {
         } else {
             return new Value(newLeft.toString() + newRight.toString());
         }
+    }
+
+    protected double evalOperation(Generator gen, double lVal, double rVal) {
+        double value = 0d;
+        if ("/".equals(operation)) {
+            if (rVal != 0) {
+                value = lVal / rVal;
+            } else {
+                gen.warn(String.format("Cannot evaluate: '%s': division by 0. Defaulting to 0 as result", this));
+            }
+        } else if ("*".equals(operation)) {
+            value = lVal * rVal;
+        } else if ("%".equals(operation)) {
+            value = lVal % rVal;
+        } else if ("+".equals(operation)) {
+            value = lVal + rVal;
+        } else if ("-".equals(operation)) {
+            value = lVal - rVal;
+        }
+        return value;
     }
 }

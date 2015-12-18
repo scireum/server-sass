@@ -8,12 +8,32 @@
 
 package org.serversass;
 
-import org.serversass.ast.*;
+import org.serversass.ast.Attribute;
+import org.serversass.ast.Expression;
+import org.serversass.ast.FunctionCall;
+import org.serversass.ast.Mixin;
+import org.serversass.ast.MixinReference;
+import org.serversass.ast.Section;
+import org.serversass.ast.Stylesheet;
+import org.serversass.ast.Value;
+import org.serversass.ast.Variable;
 import parsii.tokenizer.ParseException;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Generates CSS code from one or more SASS stylesheets.
@@ -21,13 +41,8 @@ import java.util.*;
  * A subclass can be created to override {@link #resolve(String)} to change the way SASS files are
  * resolved (The default is to use the classpath). Also {@link #warn(String)} and {@link #debug(String)} can be
  * overridden to process messages which are generated while processing the code.
- * </p>
  * <p>
  * The resulting css code can be obtained by calling the {@link #toString()} method.
- * </p>
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2014/02
  */
 public class Generator {
 
@@ -67,17 +82,14 @@ public class Generator {
      * Generates a new Generator without a directory used for lookups.
      * <p>
      * This generator will resolve all imports using the classpath.
-     * </p>
      */
     public Generator() {
-
     }
 
     /**
      * Generates a new Generator using the given directory for lookups.
      * <p>
      * This generator will resolve all imports using the given directory or the  classpath.
-     * </p>
      *
      * @param baseDir the directory with contains the imports
      */
@@ -89,7 +101,6 @@ public class Generator {
      * Called to signal a warning, like an invalid operation or parse errors in a source file.
      * <p>
      * By default all messages are discarded.
-     * </p>
      *
      * @param message the message which is reported
      */
@@ -110,7 +121,6 @@ public class Generator {
      * <p>
      * By default the classloader is used to resolve the template. Also .scss or _ are added as post-/prefix
      * if required.
-     * </p>
      *
      * @param sheet the name of the file to resolve
      * @return the resolved stylesheet or <tt>null</tt> if the file is not found
@@ -218,64 +228,9 @@ public class Generator {
     private void expand(String mediaQueryPath, Section section, List<Section> stack) {
         stack = new ArrayList<Section>(stack);
         if (!section.getSelectors().isEmpty()) {
-            // We have selectors -> we're a normal section no a media query
-            if (mediaQueryPath == null) {
-                // Add to output
-                sections.add(section);
-            } else {
-                // We're already inside a media query, add to the appropriate result section
-                addResultSection(mediaQueryPath, section);
-            }
-            // Expand all selectors with those of the parents (flatten nesting)
-            for (List<String> selector : section.getSelectors()) {
-                if (!stack.isEmpty()) {
-                    Section parent = stack.get(stack.size() - 1);
-                    if (!parent.getSelectors().isEmpty()) {
-                        List<String> parentSelectors = parent.getSelectors().get(0);
-                        if (selector.size() > 1 && !parentSelectors.isEmpty() && "&".equals(selector.get(0))) {
-                            combineSelectors(selector, parentSelectors);
-                        } else {
-                            selector.addAll(0, parentSelectors);
-                        }
-                    }
-                }
-                // Selectors with only one element can be referenced by @extend
-                if (selector.size() == 1) {
-                    extensibleSections.put(selector.get(0), section);
-                }
-            }
-            // Add to nesting stack used by children
-            stack.add(section);
+            expandSection(mediaQueryPath, section, stack);
         } else {
-            // We're a media query - update path
-            if (mediaQueryPath == null) {
-                mediaQueryPath = "@media " + section.getMediaQuery(scope, this);
-            } else {
-                mediaQueryPath += " and " + section.getMediaQuery(scope, this);
-            }
-
-            // We have implicit attributes - copy the next non-media-query parent
-            // and create a pseudo-secion covering these attributes
-            if (!section.getAttributes().isEmpty()) {
-                Section copy = new Section();
-                if (!stack.isEmpty()) {
-                    Section parent = stack.get(stack.size() - 1);
-                    if (copy.getSelectors().isEmpty()) {
-                        copy.getSelectors().addAll(parent.getSelectors());
-                    } else if (!parent.getSelectors().isEmpty()) {
-                        for (List<String> selector : copy.getSelectors()) {
-                            selector.addAll(0, parent.getSelectors().get(0));
-                        }
-                    }
-                }
-                if (copy.getSelectors().isEmpty()) {
-                    warn(String.format("Cannot define attributes in @media selector '%s'",
-                                       section.getMediaQuery(scope, this)));
-                } else {
-                    copy.getAttributes().addAll(section.getAttributes());
-                    addResultSection(mediaQueryPath, copy);
-                }
-            }
+            mediaQueryPath = expandMediaQuery(mediaQueryPath, section, stack);
         }
 
         // Unfold subsections
@@ -285,6 +240,70 @@ public class Generator {
 
         // Delete subsections - no longer necessary (and not supported by css)
         section.getSubSections().clear();
+    }
+
+    private String expandMediaQuery(String mediaQueryPath, Section section, List<Section> stack) {
+        // We're a media query - update path
+        if (mediaQueryPath == null) {
+            mediaQueryPath = "@media " + section.getMediaQuery(scope, this);
+        } else {
+            mediaQueryPath += " and " + section.getMediaQuery(scope, this);
+        }
+
+        // We have implicit attributes - copy the next non-media-query parent
+        // and create a pseudo-secion covering these attributes
+        if (!section.getAttributes().isEmpty()) {
+            Section copy = new Section();
+            if (!stack.isEmpty()) {
+                Section parent = stack.get(stack.size() - 1);
+                if (copy.getSelectors().isEmpty()) {
+                    copy.getSelectors().addAll(parent.getSelectors());
+                } else if (!parent.getSelectors().isEmpty()) {
+                    for (List<String> selector : copy.getSelectors()) {
+                        selector.addAll(0, parent.getSelectors().get(0));
+                    }
+                }
+            }
+            if (copy.getSelectors().isEmpty()) {
+                warn(String.format("Cannot define attributes in @media selector '%s'",
+                                   section.getMediaQuery(scope, this)));
+            } else {
+                copy.getAttributes().addAll(section.getAttributes());
+                addResultSection(mediaQueryPath, copy);
+            }
+        }
+        return mediaQueryPath;
+    }
+
+    private void expandSection(String mediaQueryPath, Section section, List<Section> stack) {
+        // We have selectors -> we're a normal section no a media query
+        if (mediaQueryPath == null) {
+            // Add to output
+            sections.add(section);
+        } else {
+            // We're already inside a media query, add to the appropriate result section
+            addResultSection(mediaQueryPath, section);
+        }
+        // Expand all selectors with those of the parents (flatten nesting)
+        for (List<String> selector : section.getSelectors()) {
+            if (!stack.isEmpty()) {
+                Section parent = stack.get(stack.size() - 1);
+                if (!parent.getSelectors().isEmpty()) {
+                    List<String> parentSelectors = parent.getSelectors().get(0);
+                    if (selector.size() > 1 && !parentSelectors.isEmpty() && "&".equals(selector.get(0))) {
+                        combineSelectors(selector, parentSelectors);
+                    } else {
+                        selector.addAll(0, parentSelectors);
+                    }
+                }
+            }
+            // Selectors with only one element can be referenced by @extend
+            if (selector.size() == 1) {
+                extensibleSections.put(selector.get(0), section);
+            }
+        }
+        // Add to nesting stack used by children
+        stack.add(section);
     }
 
     /*
@@ -322,7 +341,6 @@ public class Generator {
      * <p>
      * This will evaluate all @mixin and @extends statements and evaluate all expressions. Needs to be called before
      * the sources are retrieved via {@link #toString()}.
-     * </p>
      */
     public void compile() {
         // Treat media queries as "normal" sections as they are supported by CSS
@@ -341,45 +359,7 @@ public class Generator {
             }
 
             // Handle and perform all @mixin instructions
-            for (MixinReference ref : section.getReferences()) {
-                // Create a sub scope which will have access to the parameter values
-                Scope subScope = new Scope(scope);
-                // Find mixin..
-                Mixin mixin = mixins.get(ref.getName());
-                if (mixin != null) {
-                    // Check if number of parameters match
-                    if (mixin.getParameters().size() != ref.getParameters().size()) {
-                        warn(String.format(
-                                "@mixin call '%s' by selector '%s' does not match expected number of parameters. Found: %d, expected: %d",
-                                ref.getName(),
-                                section.getSelectorString(),
-                                ref.getParameters().size(),
-                                mixin.getParameters().size()));
-                    }
-                    // Evaluate all parameters and populate sub scope
-                    int i = 0;
-                    for (String name : mixin.getParameters()) {
-                        if (ref.getParameters().size() > i) {
-                            subScope.set(name, ref.getParameters().get(i));
-                        }
-                        i++;
-                    }
-                    // Copy attributes and evaluate expression
-                    for (Attribute attr : mixin.getAttributes()) {
-                        if (attr.getExpression().isConstant()) {
-                            section.addAttribute(attr);
-                        } else {
-                            Attribute copy = new Attribute(attr.getName());
-                            copy.setExpression(attr.getExpression().eval(subScope, this));
-                            section.addAttribute(copy);
-                        }
-                    }
-                } else {
-                    warn(String.format("Skipping unknown @mixin '%s' referenced by selector '%s'",
-                                       ref.getName(),
-                                       section.getSelectorString()));
-                }
-            }
+            compileMixins(section);
 
             // Evaluate expressions of the section
             for (Attribute attr : section.getAttributes()) {
@@ -393,6 +373,49 @@ public class Generator {
             Section section = iter.next();
             if (section.getSubSections().isEmpty() && section.getAttributes().isEmpty()) {
                 iter.remove();
+            }
+        }
+    }
+
+    protected void compileMixins(Section section) {
+        for (MixinReference ref : section.getReferences()) {
+            // Create a sub scope which will have access to the parameter values
+            Scope subScope = new Scope(scope);
+            // Find mixin..
+            Mixin mixin = mixins.get(ref.getName());
+            if (mixin != null) {
+                // Check if number of parameters match
+                if (mixin.getParameters().size() != ref.getParameters().size()) {
+                    warn(String.format(
+                            "@mixin call '%s' by selector '%s' does not match expected number of parameters. "
+                            + "Found: %d, expected: %d",
+                            ref.getName(),
+                            section.getSelectorString(),
+                            ref.getParameters().size(),
+                            mixin.getParameters().size()));
+                }
+                // Evaluate all parameters and populate sub scope
+                int i = 0;
+                for (String name : mixin.getParameters()) {
+                    if (ref.getParameters().size() > i) {
+                        subScope.set(name, ref.getParameters().get(i));
+                    }
+                    i++;
+                }
+                // Copy attributes and evaluate expression
+                for (Attribute attr : mixin.getAttributes()) {
+                    if (attr.getExpression().isConstant()) {
+                        section.addAttribute(attr);
+                    } else {
+                        Attribute copy = new Attribute(attr.getName());
+                        copy.setExpression(attr.getExpression().eval(subScope, this));
+                        section.addAttribute(copy);
+                    }
+                }
+            } else {
+                warn(String.format("Skipping unknown @mixin '%s' referenced by selector '%s'",
+                                   ref.getName(),
+                                   section.getSelectorString()));
             }
         }
     }
@@ -426,8 +449,7 @@ public class Generator {
      * Evaluates the given function.
      * <p>
      * Can be overridden by subclasses. If no matching function is found, the raw sources are output to handle
-     * <code>url('..')</code> etc.
-     * </p>
+     * {@code url('..')} etc.
      *
      * @param call the function to evaluate
      * @return the result of the evaluation
@@ -439,7 +461,7 @@ public class Generator {
                                                                       .replaceAll("[^a-z0-9]", ""),
                                                                   Generator.class,
                                                                   FunctionCall.class).invoke(null, this, call);
-        } catch (NoSuchMethodException e) {
+        } catch (NoSuchMethodException ignored) {
             return new Value(call.toString());
         } catch (InvocationTargetException e) {
             warn("Cannot execute function: " + call + " - " + e.getCause().getMessage());

@@ -16,20 +16,11 @@ import java.util.List;
 
 /**
  * Represents a function call like "lighten(#FFFFF, 1)".
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2014/02
  */
-public class FunctionCall extends Expression {
+public class FunctionCall implements Expression {
 
     private String name;
-    private List<Expression> parameters = new ArrayList<Expression>();
-
-    /**
-     * Creates a new and empty function call
-     */
-    public FunctionCall() {
-    }
+    private List<Expression> parameters = new ArrayList<>();
 
     /**
      * Returns the name of the function.
@@ -43,6 +34,18 @@ public class FunctionCall extends Expression {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        appendNameAndParameters(sb, name, parameters);
+        return sb.toString();
+    }
+
+    /**
+     * Appends the name and parameters to the given string builder.
+     *
+     * @param sb         the target to write the output to
+     * @param name       the name of the function
+     * @param parameters the list of parameters
+     */
+    protected static void appendNameAndParameters(StringBuilder sb, String name, List<Expression> parameters) {
         sb.append(name);
         sb.append("(");
         boolean first = true;
@@ -53,7 +56,7 @@ public class FunctionCall extends Expression {
             first = false;
             sb.append(expr);
         }
-        return sb.append(")").toString();
+        sb.append(")");
     }
 
     /**
@@ -109,7 +112,6 @@ public class FunctionCall extends Expression {
         Expression expr = getExpectedParam(index);
         if (!(expr instanceof Color)) {
             throw new IllegalArgumentException("Parameter " + index + " isn't a color. Function call: " + this);
-
         }
 
         return (Color) expr;

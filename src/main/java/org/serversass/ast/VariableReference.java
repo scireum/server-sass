@@ -13,11 +13,8 @@ import org.serversass.Scope;
 
 /**
  * References a variable like "$test".
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2014/02
  */
-public class VariableReference extends Expression {
+public class VariableReference implements Expression {
     private String name;
 
     /**

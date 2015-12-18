@@ -1,3 +1,11 @@
+/*
+ * Made with all the love in the world
+ * by scireum in Remshalden, Germany
+ *
+ * Copyright by scireum GmbH
+ * http://www.scireum.de - info@scireum.de
+ */
+
 package org.serversass;
 
 import java.io.IOException;
@@ -8,10 +16,6 @@ import java.io.Writer;
  * <p>
  * This is used by the {@link Generator} to create the final output. Depending on the settings, the output will
  * be nicely formatted or "minified".
- * </p>
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2014/02
  */
 public class Output {
     protected int indentLevel = 0;
@@ -34,7 +38,6 @@ public class Output {
      * Outputs the given value as string.
      * <p>
      * This will be added to the output in any case.
-     * </p>
      *
      * @param value the data out add to the output
      * @return the instance itself for fluent method calls

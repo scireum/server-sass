@@ -13,9 +13,6 @@ import java.util.List;
 
 /**
  * Defines a parsed mixin.
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2014/02
  */
 public class Mixin {
 

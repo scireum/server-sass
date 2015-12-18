@@ -13,11 +13,8 @@ import org.serversass.Scope;
 
 /**
  * Represents an attribute filter used in a media query like "(min-width: 13px)".
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2014/02
  */
-public class MediaFilter extends Expression {
+public class MediaFilter implements Expression {
     private String name;
     private Expression expression;
 

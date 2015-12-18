@@ -16,13 +16,14 @@ import java.util.regex.Pattern;
 
 /**
  * Represents a color like #565656.
- *
- * @author Andreas Haufler (aha@scireum.de)
- * @since 2014/02
  */
-public class Color extends Expression {
+public class Color implements Expression {
 
-    public static final double EPSILON = 0.001;
+    /**
+     * Used to determine "equality" for floating point numbers
+     */
+    public static final double EPSILON = 0.00001;
+
     private int r = 0;
     private int g = 0;
     private int b = 0;
@@ -93,7 +94,6 @@ public class Color extends Expression {
             return s;
         }
 
-
         /**
          * Returns the lightness.
          *
@@ -116,9 +116,10 @@ public class Color extends Expression {
         }
     }
 
-    private static final Pattern RGB_HEX_PATTERN = Pattern.compile("#?([\\da-fA-F]{2})([\\da-fA-F]{2})([\\da-fA-F]{2})");
-    private static final Pattern SHORT_RGB_HEX_PATTERN = Pattern.compile(
-            "#?([\\da-fA-F]{1})([\\da-fA-F]{1})([\\da-fA-F]{1})");
+    private static final Pattern RGB_HEX_PATTERN =
+            Pattern.compile("#?([\\da-fA-F]{2})([\\da-fA-F]{2})([\\da-fA-F]{2})");
+    private static final Pattern SHORT_RGB_HEX_PATTERN =
+            Pattern.compile("#?([\\da-fA-F]{1})([\\da-fA-F]{1})([\\da-fA-F]{1})");
 
     /**
      * Creates a new RGB color based on the given hex string
@@ -139,7 +140,9 @@ public class Color extends Expression {
             g = Integer.parseInt(m.group(2).toLowerCase() + m.group(2).toLowerCase(), 16);
             b = Integer.parseInt(m.group(3).toLowerCase() + m.group(3).toLowerCase(), 16);
         } else {
-            throw new IllegalArgumentException("Cannot parse '" + hexString + "' as hex color. Expected a pattern like #FF00FF");
+            throw new IllegalArgumentException("Cannot parse '"
+                                               + hexString
+                                               + "' as hex color. Expected a pattern like #FF00FF");
         }
     }
 
@@ -231,6 +234,7 @@ public class Color extends Expression {
      *
      * @return a triple containing the hue, saturation and lightness
      */
+    @SuppressWarnings("FloatingPointEquality")
     public HSL getHSL() {
         // Convert the RGB values to the range 0-1
         double red = r / 255.0;
@@ -244,7 +248,6 @@ public class Color extends Expression {
 
         // Now calculate the luminace value by adding the max and min values and divide by 2.
         double l = (min + max) / 2;
-
 
         // The next step is to find the Saturation.
         double s = 0;
@@ -321,8 +324,9 @@ public class Color extends Expression {
     }
 
     private boolean canBeExpressedAs3DigitHex(String result) {
-        return result.charAt(1) == result.charAt(2) && result.charAt(3) == result.charAt(4) && result.charAt(5) == result
-                .charAt(6);
+        return result.charAt(1) == result.charAt(2)
+               && result.charAt(3) == result.charAt(4)
+               && result.charAt(5) == result.charAt(6);
     }
 
     private String paddedHex(int value) {
