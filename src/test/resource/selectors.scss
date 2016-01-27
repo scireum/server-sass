@@ -1,4 +1,4 @@
-//We expect this to stay same
+// We expect this to stay same
 .select-file input:checked + span {
   font-family: 'OpenSansSemibold';
 }
@@ -26,4 +26,9 @@ input[type="radio"]:checked + span {
 .nav-list [class^="icon-"],
 .nav-list [class*=" icon-"] {
   margin-right: 5px;
+}
+
+// We expect the parser to accept values containing a ':'
+.test {
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
 }

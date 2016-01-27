@@ -15,6 +15,7 @@ import org.serversass.ast.FunctionCall;
 import org.serversass.ast.MediaFilter;
 import org.serversass.ast.Mixin;
 import org.serversass.ast.MixinReference;
+import org.serversass.ast.NamedParameter;
 import org.serversass.ast.Number;
 import org.serversass.ast.Operation;
 import org.serversass.ast.Section;
@@ -509,33 +510,15 @@ public class Parser {
         if (tokenizer.current().isSpecialIdentifier("#")) {
             return new Color(tokenizer.consume().getSource());
         }
+
         // Parse an identifier or function call
         if (tokenizer.current().isIdentifier() || tokenizer.current().isString()) {
-            if (tokenizer.next().isSymbol("(")) {
-                // An identifier followed by '(' is a function call...
-                FunctionCall fun = new FunctionCall();
-                fun.setName(tokenizer.consume().getContents());
-                tokenizer.consumeExpectedSymbol("(");
-                while (tokenizer.more() && !tokenizer.current().isSymbol(")", ";", "{", "}")) {
-                    fun.addParameter(parseExpression(false));
-                    consumeExpectedComma();
-                }
-                tokenizer.consumeExpectedSymbol(")");
-                return fun;
-            }
-
-            // Neither function or value list -> simple value
-            return new Value(tokenizer.consume().getSource());
+            return parseIdentifierOrFunctionCall();
         }
 
         // Parse as variable reference
         if (tokenizer.current().isSpecialIdentifier("$")) {
             return new VariableReference(tokenizer.consume().getContents());
-        }
-
-        // Parse as string constant
-        if (tokenizer.current().isString()) {
-            return new Value(tokenizer.consume().getSource());
         }
 
         // Parse as expression in braces
@@ -559,6 +542,38 @@ public class Parser {
         tokenizer.addError(tokenizer.current(),
                            "Unexpected token: '" + tokenizer.consume().getSource() + "'. Expected an expression.");
         return new Value("");
+    }
+
+    private Expression parseIdentifierOrFunctionCall() {
+        // Identifiers might contain ':' like "progid:DXImageTransform.Microsoft.gradient"
+        String id = "";
+        while (tokenizer.current().isIdentifier() && tokenizer.next().isSymbol(":")) {
+            id += tokenizer.consume().getSource() + ":";
+            tokenizer.consume();
+        }
+        id += tokenizer.consume().getSource();
+
+        if (tokenizer.current().isSymbol("(")) {
+            // An identifier followed by '(' is a function call...
+            FunctionCall fun = new FunctionCall();
+            fun.setName(id);
+            tokenizer.consumeExpectedSymbol("(");
+            while (tokenizer.more() && !tokenizer.current().isSymbol(")", ";", "{", "}")) {
+                if (tokenizer.current().isIdentifier() && tokenizer.next().isSymbol("=")) {
+                    String name = tokenizer.consume().getContents();
+                    tokenizer.consume();
+                    fun.addParameter(new NamedParameter(name, parseExpression(false)));
+                } else {
+                    fun.addParameter(parseExpression(false));
+                }
+                consumeExpectedComma();
+            }
+            tokenizer.consumeExpectedSymbol(")");
+            return fun;
+        }
+
+        // Neither function or value list -> simple value
+        return new Value(id);
     }
 
     private void consumeExpectedComma() {
