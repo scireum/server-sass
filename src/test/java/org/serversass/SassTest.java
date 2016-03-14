@@ -3,10 +3,12 @@ package org.serversass;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+
+import com.glide.scss.compiler.Generator;
+import com.glide.scss.compiler.Output;
 
 /**
  * Tests the SASS to CSS compiler
