@@ -22,7 +22,7 @@ public class Color implements Expression {
     /**
      * Used to determine "equality" for floating point numbers
      */
-    public static final double EPSILON = 0.00001;
+    public static final double EPSILON = 0.001;
 
     private int r = 0;
     private int g = 0;
