@@ -3,7 +3,6 @@ package org.serversass;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
@@ -67,6 +66,11 @@ public class SassTest {
         compare("media.scss", "media.css");
     }
 
+    @Test
+    public void testKeyframes() {
+        compare("keyframes.scss", "keyframes.css");
+    }
+
     private void compare(String scssFile, String cssFile) {
         try {
             Generator gen = new Generator() {
@@ -74,7 +78,6 @@ public class SassTest {
                 public void warn(String message) {
                     System.err.println(message);
                 }
-
             };
             gen.importStylesheet(scssFile);
             gen.compile();
@@ -110,6 +113,5 @@ public class SassTest {
         } catch (IOException e) {
             Assert.fail(e.getMessage());
         }
-
     }
 }

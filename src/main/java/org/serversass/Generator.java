@@ -233,13 +233,15 @@ public class Generator {
             mediaQueryPath = expandMediaQuery(mediaQueryPath, section, stack);
         }
 
-        // Unfold subsections
-        for (Section child : section.getSubSections()) {
-            expand(mediaQueryPath, child, stack);
-        }
+        if (section.getSelectorString() != null && !section.getSelectorString().startsWith("@")) {
+            // Unfold subsections
+            for (Section child : section.getSubSections()) {
+                expand(mediaQueryPath, child, stack);
+            }
 
-        // Delete subsections - no longer necessary (and not supported by css)
-        section.getSubSections().clear();
+            // Delete subsections - no longer necessary (and not supported by css)
+            section.getSubSections().clear();
+        }
     }
 
     private String expandMediaQuery(String mediaQueryPath, Section section, List<Section> stack) {

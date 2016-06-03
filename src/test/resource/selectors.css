@@ -29,3 +29,9 @@ input[type="radio"]:checked + span {
 .test {
     filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
 }
+
+@keyframes test {
+    inner {
+        test: 1;
+    }
+}
