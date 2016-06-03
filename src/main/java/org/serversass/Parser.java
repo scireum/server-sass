@@ -335,7 +335,7 @@ public class Parser {
                     tokenizer.addError(tokenizer.current(), "Unexpected end of CSS selector");
                 }
                 return selector;
-            } else if (tokenizer.current().isIdentifier() || tokenizer.current().isSpecialIdentifier("#", "@")) {
+            } else if (tokenizer.current().isIdentifier() || tokenizer.current().isSpecialIdentifier("#", "@") || tokenizer.current().isNumber()) {
                 StringBuilder sb = new StringBuilder(tokenizer.consume().getSource());
                 parseFilterInSelector(sb);
                 parseOperatorInSelector(sb);
