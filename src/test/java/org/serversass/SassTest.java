@@ -100,8 +100,8 @@ public class SassTest {
             gen.generate(output);
             String result = out.toString();
 
-            String[] expectedLines = expected.split("\n");
-            String[] resultLines = result.split("\n");
+            String[] expectedLines = expected.split("\\r?\\n");
+            String[] resultLines = result.split("\\r?\\n");
             for (int i = 0; i < expectedLines.length; i++) {
                 String exp = expectedLines[i];
                 String res = resultLines.length > i ? resultLines[i] : "";
