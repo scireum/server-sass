@@ -330,12 +330,14 @@ public class Parser {
             }
         }
         while (tokenizer.more()) {
-            if (tokenizer.current().isSymbol("{", ",")) {
+            if (tokenizer.current().isSymbol("{", ",", "&")) {
                 if (selector.isEmpty()) {
                     tokenizer.addError(tokenizer.current(), "Unexpected end of CSS selector");
                 }
                 return selector;
-            } else if (tokenizer.current().isIdentifier() || tokenizer.current().isSpecialIdentifier("#", "@") || tokenizer.current().isNumber()) {
+            } else if (tokenizer.current().isIdentifier()
+                       || tokenizer.current().isSpecialIdentifier("#", "@")
+                       || tokenizer.current().isNumber()) {
                 StringBuilder sb = new StringBuilder(tokenizer.consume().getSource());
                 parseFilterInSelector(sb);
                 parseOperatorInSelector(sb);
@@ -615,10 +617,21 @@ public class Parser {
                 Attribute attr = parseAttribute();
                 mixin.addAttribute(attr);
             } else {
-                tokenizer.addError(tokenizer.current(),
-                                   "Unexpected token: '"
-                                   + tokenizer.consume().getSource()
-                                   + "'. Expected an attribute definition.");
+                // If it isn't an attribute it is (hopefully) a subsection
+                Section subSection = new Section();
+                parseSectionSelector(false, subSection);
+                if (tokenizer.current().isSymbol("&")) {
+                    tokenizer.consume();
+                }
+                tokenizer.consumeExpectedSymbol("{");
+                while (tokenizer.more() && !tokenizer.current().isSymbol("}")) {
+                    if (tokenizer.current().isIdentifier() && tokenizer.next().isSymbol(":")) {
+                        Attribute attr = parseAttribute();
+                        subSection.addAttribute(attr);
+                    }
+                }
+                tokenizer.consumeExpectedSymbol("}");
+                mixin.addSubSection(subSection);
             }
         }
         tokenizer.consumeExpectedSymbol("}");

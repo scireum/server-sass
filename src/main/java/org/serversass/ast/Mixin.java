@@ -18,6 +18,8 @@ public class Mixin {
 
     private List<String> parameters = new ArrayList<String>();
     private List<Attribute> attributes = new ArrayList<Attribute>();
+    private List<Section> subSections = new ArrayList<Section>();
+
     private String name;
 
     /**
@@ -48,6 +50,15 @@ public class Mixin {
     }
 
     /**
+     * Adds a sub section. This can be either a nested section or a media query.
+     *
+     * @param section the section to add
+     */
+    public void addSubSection(Section section) {
+        subSections.add(section);
+    }
+
+    /**
      * Returns the name of the mixin
      *
      * @return the name of the mixin
@@ -72,5 +83,14 @@ public class Mixin {
      */
     public List<Attribute> getAttributes() {
         return attributes;
+    }
+
+    /**
+     * Returns a list of all sub sections.
+     *
+     * @return a list of all sub sections
+     */
+    public List<Section> getSubSections() {
+        return subSections;
     }
 }

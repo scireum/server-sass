@@ -5,5 +5,27 @@
   -o-border-radius: $radius;
   border-radius: $radius;
 }
-
 .box { @include border-radius(10px); }
+
+@mixin color() {
+  body.white & {
+    background-color: #fff;
+  }
+  body.black & {
+    background-color: #000;
+  }
+}
+
+@mixin test() {
+  x.test, y.test & {
+    background-color: #fff;
+  }
+}
+
+.element {
+  @include color();
+}
+
+.a, .b {
+  @include test();
+}

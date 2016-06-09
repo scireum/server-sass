@@ -347,7 +347,7 @@ public class Generator {
     public void compile() {
         // Treat media queries as "normal" sections as they are supported by CSS
         sections.addAll(mediaQueries.values());
-        for (Section section : sections) {
+        for (Section section : new ArrayList<Section>(sections)) {
             // Handle and perform all @extend instructions
             for (String extend : section.getExtendedSections()) {
                 Section toBeExtended = extensibleSections.get(extend);
@@ -414,6 +414,24 @@ public class Generator {
                         section.addAttribute(copy);
                     }
                 }
+
+                for (Section child : mixin.getSubSections()) {
+                    Section newCombination = new Section();
+                    for (List<String> outer : child.getSelectors()) {
+                        for (List<String> inner : section.getSelectors()) {
+                            List<String> fullSelector = new ArrayList<>(outer);
+                            fullSelector.addAll(inner);
+                            newCombination.getSelectors().add(fullSelector);
+                        }
+                    }
+
+                    for (Attribute attr : child.getAttributes()) {
+                        Attribute copy = new Attribute(attr.getName());
+                        copy.setExpression(attr.getExpression().eval(subScope, this));
+                        newCombination.addAttribute(copy);
+                    }
+                    sections.add(newCombination);
+                }
             } else {
                 warn(String.format("Skipping unknown @mixin '%s' referenced by selector '%s'",
                                    ref.getName(),
@@ -439,6 +457,7 @@ public class Generator {
      * @param out the target for the generated output
      * @throws IOException in case of an io error in the underlying writer
      */
+
     public void generate(Output out) throws IOException {
         for (Section section : sections) {
             section.generate(out);
