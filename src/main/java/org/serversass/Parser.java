@@ -329,6 +329,12 @@ public class Parser {
                 selector.add(":" + tokenizer.consume().getContents());
             }
         }
+        if (tokenizer.more() && tokenizer.current().isSymbol("::")) {
+            tokenizer.consume();
+            if (tokenizer.current().is(Token.TokenType.ID)) {
+                selector.add("::" + tokenizer.consume().getContents());
+            }
+        }
         while (tokenizer.more()) {
             if (tokenizer.current().isSymbol("{", ",", "&")) {
                 if (selector.isEmpty()) {
