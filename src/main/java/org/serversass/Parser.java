@@ -329,11 +329,9 @@ public class Parser {
                 selector.add(":" + tokenizer.consume().getContents());
             }
         }
-        if (tokenizer.more() && tokenizer.current().isSymbol("::")) {
+        if (tokenizer.more() && tokenizer.current().isSymbol("::") && tokenizer.next().is(Token.TokenType.ID)) {
             tokenizer.consume();
-            if (tokenizer.current().is(Token.TokenType.ID)) {
-                selector.add("::" + tokenizer.consume().getContents());
-            }
+            selector.add("::" + tokenizer.consume().getContents());
         }
         while (tokenizer.more()) {
             if (tokenizer.current().isSymbol("{", ",", "&")) {
