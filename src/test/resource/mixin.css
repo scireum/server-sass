@@ -5,3 +5,15 @@
     -o-border-radius: 10px;
     border-radius: 10px;
 }
+
+body.white .element {
+    background-color: #fff;
+}
+
+body.black .element {
+    background-color: #000;
+}
+
+x.test .a, x.test .b, y.test .a, y.test .b {
+    background-color: #fff;
+}

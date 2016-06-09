@@ -38,3 +38,9 @@ input[type="radio"]:checked + span {
     test: 1;
   }
 }
+
+// We expect the parser to accept accessing pseudo elements using '::'
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
