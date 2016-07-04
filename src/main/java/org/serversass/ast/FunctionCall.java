@@ -146,6 +146,11 @@ public class FunctionCall implements Expression {
 
     @Override
     public Expression eval(Scope scope, Generator gen) {
+        // As calc is a CSS function, we do not evaluate inner arguments on the server side
+        if ("calc".equals(name)) {
+            return this;
+        }
+
         FunctionCall call = new FunctionCall();
         call.setName(name);
         for (Expression expr : parameters) {
