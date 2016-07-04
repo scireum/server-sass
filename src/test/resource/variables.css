@@ -2,4 +2,5 @@ body {
     font: 100% Helvetica,sans-serif,'OpenSansBold';
     color: #333;
     max-width: 110px;
+    height: calc(100% - 47px);
 }
