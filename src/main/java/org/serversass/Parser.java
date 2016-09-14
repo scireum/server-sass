@@ -318,7 +318,6 @@ public class Parser {
      */
     private List<String> parseSelector() {
         List<String> selector = new ArrayList<String>();
-        boolean lastWasId = false;
         if (tokenizer.more() && tokenizer.current().isSymbol("&")) {
             selector.add(tokenizer.consume().getTrigger());
         }
@@ -346,18 +345,12 @@ public class Parser {
                 parseFilterInSelector(sb);
                 parseOperatorInSelector(sb);
                 selector.add(sb.toString());
-                lastWasId = true;
+            } else if (tokenizer.current().isSymbol("*")) {
+                selector.add(tokenizer.consume().getTrigger());
             } else if (tokenizer.current().isSymbol(">", "+", "~")) {
-                if (!lastWasId || !tokenizer.next().isIdentifier()) {
-                    tokenizer.addError(tokenizer.current(),
-                                       "Unexpected token: '%s'. A selector path must not contain two consecutive operators.",
-                                       tokenizer.current().getSource());
-                }
                 selector.add(tokenizer.consume().getSource());
-                lastWasId = false;
             } else {
                 tokenizer.addError(tokenizer.current(), "Unexpected Token: %s", tokenizer.consume().getSource());
-                lastWasId = false;
             }
         }
         return selector;

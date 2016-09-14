@@ -44,3 +44,15 @@ input[type="radio"]:checked + span {
   width: 12px;
   height: 12px;
 }
+
+// We expect * to work and stay the same
+#test * {
+  box-sizing: content-box;
+}
+
+#test {
+  + label {
+    display: none;
+
+  }
+}

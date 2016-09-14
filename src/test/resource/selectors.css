@@ -40,3 +40,11 @@ input[type="radio"]:checked + span {
     width: 12px;
     height: 12px;
 }
+
+#test * {
+    box-sizing: content-box;
+}
+
+#test + label {
+    display: none;
+}
