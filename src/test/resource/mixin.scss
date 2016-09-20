@@ -17,8 +17,14 @@
 }
 
 @mixin test() {
-  x.test, y.test & {
+  x.test &, y.test & {
     background-color: #fff;
+  }
+}
+
+@mixin dark() {
+  .dark &, &.dark, .dark {
+    background-color: #000000;
   }
 }
 
@@ -28,4 +34,8 @@
 
 .a, .b {
   @include test();
+}
+
+.dark-test {
+  @include dark();
 }

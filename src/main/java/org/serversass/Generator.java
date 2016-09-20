@@ -294,7 +294,10 @@ public class Generator {
                     List<String> parentSelectors = parent.getSelectors().get(0);
                     if (selector.size() > 1 && !parentSelectors.isEmpty() && "&".equals(selector.get(0))) {
                         combineSelectors(selector, parentSelectors);
-                    } else {
+                    } else  if ("&".equals(selector.get(selector.size() - 1))){
+                        selector.remove(selector.size() - 1);
+                        selector.addAll(parentSelectors);
+                    } else  {
                         selector.addAll(0, parentSelectors);
                     }
                 }
@@ -420,7 +423,14 @@ public class Generator {
                     for (List<String> outer : child.getSelectors()) {
                         for (List<String> inner : section.getSelectors()) {
                             List<String> fullSelector = new ArrayList<>(outer);
-                            fullSelector.addAll(inner);
+                            if ("&".equals(outer.get(outer.size() - 1))) {
+                                fullSelector.remove(fullSelector.size() - 1);
+                                fullSelector.addAll(inner);
+                            } else if ("&".equals(outer.get(0))) {
+                                combineSelectors(fullSelector, inner);
+                            } else {
+                                fullSelector.addAll(0, inner);
+                            }
                             newCombination.getSelectors().add(fullSelector);
                         }
                     }

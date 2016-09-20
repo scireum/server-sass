@@ -28,3 +28,17 @@ nav {
     background-color: #faedbb;
   }
 }
+
+a {
+  b & {
+    color: #AABBCC;
+  }
+
+  b:hover {
+    color: red;
+  }
+
+  c,d {
+    color: green;
+  }
+}
