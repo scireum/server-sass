@@ -225,7 +225,7 @@ public class Parser {
         int i = 2;
         while (true) {
             Token next = tokenizer.next(i);
-            if (next.isEnd() ||next.isSymbol(";")) {
+            if (next.isEnd() || next.isSymbol(";")) {
                 return true;
             } else if (next.isSymbol("{")) {
                 return false;
@@ -370,9 +370,7 @@ public class Parser {
                 parseFilterInSelector(sb);
                 parseOperatorInSelector(sb);
                 selector.add(sb.toString());
-            } else if (tokenizer.current().isSymbol("&")) {
-                selector.add(tokenizer.consume().getTrigger());
-            } else if (tokenizer.current().isSymbol("*")) {
+            } else if (tokenizer.current().isSymbol("&") || tokenizer.current().isSymbol("*")) {
                 selector.add(tokenizer.consume().getTrigger());
             } else if (tokenizer.current().isSymbol(">", "+", "~")) {
                 selector.add(tokenizer.consume().getSource());

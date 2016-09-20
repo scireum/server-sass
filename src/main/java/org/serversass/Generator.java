@@ -294,10 +294,10 @@ public class Generator {
                     List<String> parentSelectors = parent.getSelectors().get(0);
                     if (selector.size() > 1 && !parentSelectors.isEmpty() && "&".equals(selector.get(0))) {
                         combineSelectors(selector, parentSelectors);
-                    } else  if ("&".equals(selector.get(selector.size() - 1))){
+                    } else if ("&".equals(selector.get(selector.size() - 1))) {
                         selector.remove(selector.size() - 1);
                         selector.addAll(parentSelectors);
-                    } else  {
+                    } else {
                         selector.addAll(0, parentSelectors);
                     }
                 }
@@ -388,65 +388,71 @@ public class Generator {
             Scope subScope = new Scope(scope);
             // Find mixin..
             Mixin mixin = mixins.get(ref.getName());
-            if (mixin != null) {
-                // Check if number of parameters match
-                if (mixin.getParameters().size() != ref.getParameters().size()) {
-                    warn(String.format(
-                            "@mixin call '%s' by selector '%s' does not match expected number of parameters. "
-                            + "Found: %d, expected: %d",
-                            ref.getName(),
-                            section.getSelectorString(),
-                            ref.getParameters().size(),
-                            mixin.getParameters().size()));
-                }
-                // Evaluate all parameters and populate sub scope
-                int i = 0;
-                for (String name : mixin.getParameters()) {
-                    if (ref.getParameters().size() > i) {
-                        subScope.set(name, ref.getParameters().get(i));
-                    }
-                    i++;
-                }
-                // Copy attributes and evaluate expression
-                for (Attribute attr : mixin.getAttributes()) {
-                    if (attr.getExpression().isConstant()) {
-                        section.addAttribute(attr);
-                    } else {
-                        Attribute copy = new Attribute(attr.getName());
-                        copy.setExpression(attr.getExpression().eval(subScope, this));
-                        section.addAttribute(copy);
-                    }
-                }
-
-                for (Section child : mixin.getSubSections()) {
-                    Section newCombination = new Section();
-                    for (List<String> outer : child.getSelectors()) {
-                        for (List<String> inner : section.getSelectors()) {
-                            List<String> fullSelector = new ArrayList<>(outer);
-                            if ("&".equals(outer.get(outer.size() - 1))) {
-                                fullSelector.remove(fullSelector.size() - 1);
-                                fullSelector.addAll(inner);
-                            } else if ("&".equals(outer.get(0))) {
-                                combineSelectors(fullSelector, inner);
-                            } else {
-                                fullSelector.addAll(0, inner);
-                            }
-                            newCombination.getSelectors().add(fullSelector);
-                        }
-                    }
-
-                    for (Attribute attr : child.getAttributes()) {
-                        Attribute copy = new Attribute(attr.getName());
-                        copy.setExpression(attr.getExpression().eval(subScope, this));
-                        newCombination.addAttribute(copy);
-                    }
-                    sections.add(newCombination);
-                }
-            } else {
+            if (mixin == null) {
                 warn(String.format("Skipping unknown @mixin '%s' referenced by selector '%s'",
                                    ref.getName(),
                                    section.getSelectorString()));
+                return;
             }
+
+            compileMixin(section, ref, subScope, mixin);
+        }
+    }
+
+    private void compileMixin(Section section, MixinReference ref, Scope subScope, Mixin mixin) {
+        // Check if number of parameters match
+        if (mixin.getParameters().size() != ref.getParameters().size()) {
+            warn(String.format("@mixin call '%s' by selector '%s' does not match expected number of parameters. "
+                               + "Found: %d, expected: %d",
+                               ref.getName(),
+                               section.getSelectorString(),
+                               ref.getParameters().size(),
+                               mixin.getParameters().size()));
+        }
+
+        // Evaluate all parameters and populate sub scope
+        int i = 0;
+        for (String name : mixin.getParameters()) {
+            if (ref.getParameters().size() > i) {
+                subScope.set(name, ref.getParameters().get(i));
+            }
+            i++;
+        }
+
+        // Copy attributes and evaluate expression
+        for (Attribute attr : mixin.getAttributes()) {
+            if (attr.getExpression().isConstant()) {
+                section.addAttribute(attr);
+            } else {
+                Attribute copy = new Attribute(attr.getName());
+                copy.setExpression(attr.getExpression().eval(subScope, this));
+                section.addAttribute(copy);
+            }
+        }
+
+        for (Section child : mixin.getSubSections()) {
+            Section newCombination = new Section();
+            for (List<String> outer : child.getSelectors()) {
+                for (List<String> inner : section.getSelectors()) {
+                    List<String> fullSelector = new ArrayList<>(outer);
+                    if ("&".equals(outer.get(outer.size() - 1))) {
+                        fullSelector.remove(fullSelector.size() - 1);
+                        fullSelector.addAll(inner);
+                    } else if ("&".equals(outer.get(0))) {
+                        combineSelectors(fullSelector, inner);
+                    } else {
+                        fullSelector.addAll(0, inner);
+                    }
+                    newCombination.getSelectors().add(fullSelector);
+                }
+            }
+
+            for (Attribute attr : child.getAttributes()) {
+                Attribute copy = new Attribute(attr.getName());
+                copy.setExpression(attr.getExpression().eval(subScope, this));
+                newCombination.addAttribute(copy);
+            }
+            sections.add(newCombination);
         }
     }
 
