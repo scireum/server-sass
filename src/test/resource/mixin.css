@@ -17,3 +17,7 @@ body.black .element {
 x.test .a, x.test .b, y.test .a, y.test .b {
     background-color: #fff;
 }
+
+.dark .dark-test, .dark-test.dark, .dark-test .dark {
+    background-color: #000;
+}

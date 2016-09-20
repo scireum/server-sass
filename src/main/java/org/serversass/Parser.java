@@ -118,7 +118,7 @@ public class Parser {
         protected Token fetchSymbol() {
             Token result = Token.create(Token.TokenType.SYMBOL, input.current());
             result.addToTrigger(input.consume());
-            while (isSymbolCharacter(input.current())) {
+            while (isSymbolCharacter(input.current()) && !input.current().is(',')) {
                 result.addToTrigger(input.consume());
             }
             return result;
@@ -192,7 +192,7 @@ public class Parser {
                 return result;
             }
             // Parse "normal" attributes like "font-weight: bold;"
-            if (tokenizer.current().isIdentifier() && tokenizer.next().isSymbol(":")) {
+            if (isAtAttribute()) {
                 Attribute attr = parseAttribute();
                 result.addAttribute(attr);
             } else if (tokenizer.current().isKeyword("media")) {
@@ -209,6 +209,30 @@ public class Parser {
         }
         tokenizer.consumeExpectedSymbol("}");
         return result;
+    }
+
+    private boolean isAtAttribute() {
+        // an attribute has at least to start with x: y ...
+        if (!tokenizer.current().isIdentifier() || !tokenizer.next().isSymbol(":")) {
+            return false;
+        }
+
+        // Now as a:hover div span {
+        // and
+        // border: 1px solid red ; look almost the same to the tokenizer,
+        // we have to actually search for the final ";" to determine if we're
+        // really looking at an attribute....
+        int i = 2;
+        while (true) {
+            Token next = tokenizer.next(i);
+            if (next.isEnd() || next.isSymbol(";")) {
+                return true;
+            } else if (next.isSymbol("{")) {
+                return false;
+            } else {
+                i++;
+            }
+        }
     }
 
     private void parseExtend(Section result) {
@@ -333,10 +357,11 @@ public class Parser {
             selector.add("::" + tokenizer.consume().getContents());
         }
         while (tokenizer.more()) {
-            if (tokenizer.current().isSymbol("{", ",", "&")) {
+            if (tokenizer.current().isSymbol("{", ",")) {
                 if (selector.isEmpty()) {
                     tokenizer.addError(tokenizer.current(), "Unexpected end of CSS selector");
                 }
+
                 return selector;
             } else if (tokenizer.current().isIdentifier()
                        || tokenizer.current().isSpecialIdentifier("#", "@")
@@ -345,7 +370,7 @@ public class Parser {
                 parseFilterInSelector(sb);
                 parseOperatorInSelector(sb);
                 selector.add(sb.toString());
-            } else if (tokenizer.current().isSymbol("*")) {
+            } else if (tokenizer.current().isSymbol("&") || tokenizer.current().isSymbol("*")) {
                 selector.add(tokenizer.consume().getTrigger());
             } else if (tokenizer.current().isSymbol(">", "+", "~")) {
                 selector.add(tokenizer.consume().getSource());
@@ -610,21 +635,24 @@ public class Parser {
                 tokenizer.consumeExpectedSymbol("}");
                 return mixin;
             }
-            if (tokenizer.current().isIdentifier() && tokenizer.next().isSymbol(":")) {
+            if (isAtAttribute()) {
                 Attribute attr = parseAttribute();
                 mixin.addAttribute(attr);
             } else {
                 // If it isn't an attribute it is (hopefully) a subsection
                 Section subSection = new Section();
                 parseSectionSelector(false, subSection);
-                if (tokenizer.current().isSymbol("&")) {
-                    tokenizer.consume();
-                }
                 tokenizer.consumeExpectedSymbol("{");
                 while (tokenizer.more() && !tokenizer.current().isSymbol("}")) {
                     if (tokenizer.current().isIdentifier() && tokenizer.next().isSymbol(":")) {
                         Attribute attr = parseAttribute();
                         subSection.addAttribute(attr);
+                    } else {
+                        tokenizer.addError(tokenizer.current(),
+                                           "Unexpected token: '"
+                                           + tokenizer.current().getSource()
+                                           + "'. Expected an attribute definition");
+                        tokenizer.consume();
                     }
                 }
                 tokenizer.consumeExpectedSymbol("}");

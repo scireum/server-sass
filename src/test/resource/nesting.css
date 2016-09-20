@@ -29,3 +29,15 @@ nav:hover {
 .table tbody tr.warning td {
     background-color: #faedbb;
 }
+
+b a {
+    color: #abc;
+}
+
+a b:hover {
+    color: red;
+}
+
+a c, a d {
+    color: green;
+}
