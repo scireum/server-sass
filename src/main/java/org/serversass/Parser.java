@@ -350,7 +350,7 @@ public class Parser {
      * parses such selectors while performing basic consistency checks
      */
     private List<String> parseSelector() {
-        List<String> selector = new ArrayList<String>();
+        List<String> selector = new ArrayList<>();
         if (tokenizer.more() && tokenizer.current().isSymbol("&")) {
             selector.add(tokenizer.consume().getTrigger());
         }
