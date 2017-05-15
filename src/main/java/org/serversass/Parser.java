@@ -294,6 +294,15 @@ public class Parser {
                         tokenizer.consumeExpectedSymbol(":");
                         attr.setExpression(parseExpression(true));
                         result.addMediaQuery(attr);
+                        while (tokenizer.next().hasContent("and")) {
+                            tokenizer.consumeExpectedSymbol(")");
+                            tokenizer.consume();
+                            tokenizer.consumeExpectedSymbol("(");
+                            MediaFilter additionalAttr = new MediaFilter(tokenizer.consume().getContents());
+                            tokenizer.consumeExpectedSymbol(":");
+                            additionalAttr.setExpression(parseExpression(true));
+                            result.addMediaQuery(additionalAttr);
+                        }
                     } else {
                         tokenizer.addError(tokenizer.current(),
                                            "Unexpected symbol: '%s'. Expected an attribute filter.",
