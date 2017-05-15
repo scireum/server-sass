@@ -287,19 +287,7 @@ public class Parser {
                     // Handle plain identifiers like "screen" or "print"
                     result.addMediaQuery(new Value(tokenizer.consume().getContents()));
                 } else if (tokenizer.current().isSymbol("(")) {
-                    // Handle filters like (orientation: landscape)
-                    tokenizer.consumeExpectedSymbol("(");
-                    if (tokenizer.current().isIdentifier() && tokenizer.next().isSymbol(":")) {
-                        MediaFilter attr = new MediaFilter(tokenizer.consume().getContents());
-                        tokenizer.consumeExpectedSymbol(":");
-                        attr.setExpression(parseExpression(true));
-                        result.addMediaQuery(attr);
-                    } else {
-                        tokenizer.addError(tokenizer.current(),
-                                           "Unexpected symbol: '%s'. Expected an attribute filter.",
-                                           tokenizer.current().getSource());
-                    }
-                    tokenizer.consumeExpectedSymbol(")");
+                    parseMediaQueryFilters(result);
                 } else {
                     break;
                 }
@@ -325,6 +313,32 @@ public class Parser {
         }
     }
 
+    private void parseMediaQueryFilters(Section result) {
+        // Handle filters like (orientation: landscape)
+        tokenizer.consumeExpectedSymbol("(");
+        if (tokenizer.current().isIdentifier() && tokenizer.next().isSymbol(":")) {
+            parseMediaQueryFilter(result);
+            while (tokenizer.next().hasContent("and")) {
+                tokenizer.consumeExpectedSymbol(")");
+                tokenizer.consume();
+                tokenizer.consumeExpectedSymbol("(");
+                parseMediaQueryFilter(result);
+            }
+        } else {
+            tokenizer.addError(tokenizer.current(),
+                               "Unexpected symbol: '%s'. Expected an attribute filter.",
+                               tokenizer.current().getSource());
+        }
+        tokenizer.consumeExpectedSymbol(")");
+    }
+
+    private void parseMediaQueryFilter(Section result) {
+        MediaFilter attr = new MediaFilter(tokenizer.consume().getContents());
+        tokenizer.consumeExpectedSymbol(":");
+        attr.setExpression(parseExpression(true));
+        result.addMediaQuery(attr);
+    }
+
     private Attribute parseAttribute() {
         Attribute attr = new Attribute(tokenizer.consume().getContents());
         tokenizer.consumeExpectedSymbol(":");
@@ -341,7 +355,7 @@ public class Parser {
      * parses such selectors while performing basic consistency checks
      */
     private List<String> parseSelector() {
-        List<String> selector = new ArrayList<String>();
+        List<String> selector = new ArrayList<>();
         if (tokenizer.more() && tokenizer.current().isSymbol("&")) {
             selector.add(tokenizer.consume().getTrigger());
         }
