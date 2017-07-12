@@ -28,6 +28,11 @@ input[type="radio"]:checked + span {
   margin-right: 5px;
 }
 
+[class^="icon-"],
+[class*=" icon-"] {
+  font-size: 42px;
+}
+
 // We expect the parser to accept values containing a ':'
 .test {
   filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);

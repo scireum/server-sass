@@ -356,6 +356,12 @@ public class Parser {
      */
     private List<String> parseSelector() {
         List<String> selector = new ArrayList<>();
+        if (tokenizer.more() && tokenizer.current().isSymbol("[")) {
+            StringBuilder sb = new StringBuilder();
+            parseFilterInSelector(sb);
+            parseOperatorInSelector(sb);
+            selector.add(sb.toString());
+        }
         if (tokenizer.more() && tokenizer.current().isSymbol("&")) {
             selector.add(tokenizer.consume().getTrigger());
         }
