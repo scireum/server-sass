@@ -130,7 +130,7 @@ public class Operation implements Expression {
                     unit = lUnit;
                     if (unit != null && unit.isEmpty()) {
                         unit = rUnit;
-                    } else if (rUnit != null && !rUnit.isEmpty() && !lUnit.equals(rUnit)) {
+                    } else if (rUnit != null && !rUnit.isEmpty() && !rUnit.equals(lUnit)) {
                         gen.warn(String.format("Incompatible units mixed in expression '%s': Using left unit for result",
                                                this));
                     }

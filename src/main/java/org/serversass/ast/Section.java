@@ -21,12 +21,12 @@ import java.util.List;
  * SASS section (with nested sections) as well as flattened CSS sections and media queries.
  */
 public class Section {
-    private List<List<String>> selectors = new ArrayList<List<String>>();
-    private List<Expression> mediaQueries = new ArrayList<Expression>();
-    private List<String> extendedSections = new ArrayList<String>();
-    private List<Attribute> attributes = new ArrayList<Attribute>();
-    private List<Section> subSections = new ArrayList<Section>();
-    private List<MixinReference> references = new ArrayList<MixinReference>();
+    private List<List<String>> selectors = new ArrayList<>();
+    private List<Expression> mediaQueries = new ArrayList<>();
+    private List<String> extendedSections = new ArrayList<>();
+    private List<Attribute> attributes = new ArrayList<>();
+    private List<Section> subSections = new ArrayList<>();
+    private List<MixinReference> references = new ArrayList<>();
 
     /**
      * Returns a list of all parsed selector chains. This is empty for media queries.

@@ -17,7 +17,7 @@ import java.util.List;
 public class MixinReference {
 
     private String name;
-    private List<Expression> parameters = new ArrayList<Expression>();
+    private List<Expression> parameters = new ArrayList<>();
 
     /**
      * Returns the name of the referenced mixin

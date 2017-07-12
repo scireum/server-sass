@@ -16,9 +16,9 @@ import java.util.List;
  */
 public class Mixin {
 
-    private List<String> parameters = new ArrayList<String>();
-    private List<Attribute> attributes = new ArrayList<Attribute>();
-    private List<Section> subSections = new ArrayList<Section>();
+    private List<String> parameters = new ArrayList<>();
+    private List<Attribute> attributes = new ArrayList<>();
+    private List<Section> subSections = new ArrayList<>();
 
     private String name;
 
