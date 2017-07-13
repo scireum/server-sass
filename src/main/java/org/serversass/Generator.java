@@ -28,7 +28,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -226,7 +225,7 @@ public class Generator {
      * Expands nested sections / media queries into a flat structure as expected by CSS
      */
     private void expand(String mediaQueryPath, Section section, List<Section> stack) {
-        stack = new ArrayList<Section>(stack);
+        stack = new ArrayList<>(stack);
         if (!section.getSelectors().isEmpty()) {
             expandSection(mediaQueryPath, section, stack);
         } else {
@@ -373,13 +372,7 @@ public class Generator {
         }
 
         // Delete empty selectors
-        Iterator<Section> iter = sections.iterator();
-        while (iter.hasNext()) {
-            Section section = iter.next();
-            if (section.getSubSections().isEmpty() && section.getAttributes().isEmpty()) {
-                iter.remove();
-            }
-        }
+        sections.removeIf(section -> section.getSubSections().isEmpty() && section.getAttributes().isEmpty());
     }
 
     protected void compileMixins(Section section) {
@@ -402,12 +395,12 @@ public class Generator {
     private void compileMixin(Section section, MixinReference ref, Scope subScope, Mixin mixin) {
         // Check if number of parameters match
         if (mixin.getParameters().size() != ref.getParameters().size()) {
-            warn(String.format("@mixin call '%s' by selector '%s' does not match expected number of parameters. "
-                               + "Found: %d, expected: %d",
-                               ref.getName(),
-                               section.getSelectorString(),
-                               ref.getParameters().size(),
-                               mixin.getParameters().size()));
+            warn(String.format(
+                    "@mixin call '%s' by selector '%s' does not match expected number of parameters. Found: %d, expected: %d",
+                    ref.getName(),
+                    section.getSelectorString(),
+                    ref.getParameters().size(),
+                    mixin.getParameters().size()));
         }
 
         // Evaluate all parameters and populate sub scope

@@ -183,32 +183,32 @@ public class Parser {
      * @return the parsed section
      */
     private Section parseSection(boolean mediaQuery) {
-        Section result = new Section();
-        parseSectionSelector(mediaQuery, result);
+        Section section = new Section();
+        parseSectionSelector(mediaQuery, section);
         tokenizer.consumeExpectedSymbol("{");
         while (tokenizer.more()) {
             if (tokenizer.current().isSymbol("}")) {
                 tokenizer.consumeExpectedSymbol("}");
-                return result;
+                return section;
             }
             // Parse "normal" attributes like "font-weight: bold;"
             if (isAtAttribute()) {
                 Attribute attr = parseAttribute();
-                result.addAttribute(attr);
+                section.addAttribute(attr);
             } else if (tokenizer.current().isKeyword("media")) {
                 // Take care of @media sub sections
-                result.addSubSection(parseSection(true));
+                section.addSubSection(parseSection(true));
             } else if (tokenizer.current().isKeyword("include")) {
-                parseInclude(result);
+                parseInclude(section);
             } else if (tokenizer.current().isKeyword("extend")) {
-                parseExtend(result);
+                parseExtend(section);
             } else {
                 // If it is neither an attribute, nor a media query or instruction - it is probably a sub section...
-                result.addSubSection(parseSection(false));
+                section.addSubSection(parseSection(false));
             }
         }
         tokenizer.consumeExpectedSymbol("}");
-        return result;
+        return section;
     }
 
     private boolean isAtAttribute() {
@@ -217,9 +217,8 @@ public class Parser {
             return false;
         }
 
-        // Now as a:hover div span {
-        // and
-        // border: 1px solid red ; look almost the same to the tokenizer,
+        // Now as "a:hover div span {" and "border: 1px solid red;"
+        // look almost the same to the tokenizer,
         // we have to actually search for the final ";" to determine if we're
         // really looking at an attribute....
         int i = 2;
@@ -356,6 +355,12 @@ public class Parser {
      */
     private List<String> parseSelector() {
         List<String> selector = new ArrayList<>();
+        if (tokenizer.more() && tokenizer.current().isSymbol("[")) {
+            StringBuilder sb = new StringBuilder();
+            parseFilterInSelector(sb);
+            parseOperatorInSelector(sb);
+            selector.add(sb.toString());
+        }
         if (tokenizer.more() && tokenizer.current().isSymbol("&")) {
             selector.add(tokenizer.consume().getTrigger());
         }
@@ -474,26 +479,26 @@ public class Parser {
      * Parses an expression which can be the value of an attribute or media query. Basic numeric operations
      * like +,-,*,/,% are supported. Also " " separated lists will be parsed as ValueList
      */
-    private Expression parseExpression(boolean accepLists) {
-        Expression result = accepLists ? parseAtomList() : parseAtom();
+    private Expression parseExpression(boolean acceptLists) {
+        Expression expression = acceptLists ? parseAtomList() : parseAtom();
         while (tokenizer.more()) {
             if (tokenizer.current().isSymbol("+", "-")) {
-                result = new Operation(tokenizer.consume().getTrigger(), result, parseAtom());
+                expression = new Operation(tokenizer.consume().getTrigger(), expression, parseAtom());
             } else if (tokenizer.current().isSymbol("*", "/", "%")) {
                 String operation = tokenizer.consume().getTrigger();
                 Expression next = parseAtom();
-                result = joinOperations(result, operation, next);
+                expression = joinOperations(expression, operation, next);
             } else {
                 if (tokenizer.current().isSymbol() && !tokenizer.current().isSymbol("!")) {
                     break;
                 }
                 ValueList list = new ValueList(false);
-                list.add(result);
-                list.add(accepLists ? parseAtomList() : parseAtom());
-                result = list;
+                list.add(expression);
+                list.add(acceptLists ? parseAtomList() : parseAtom());
+                expression = list;
             }
         }
-        return result;
+        return expression;
     }
 
     /*
@@ -525,14 +530,14 @@ public class Parser {
             return exp;
         }
 
-        ValueList result = new ValueList(true);
-        result.add(exp);
+        ValueList atomList = new ValueList(true);
+        atomList.add(exp);
         while (tokenizer.current().isSymbol(",")) {
             tokenizer.consume();
-            result.add(parseAtom());
+            atomList.add(parseAtom());
         }
 
-        return result;
+        return atomList;
     }
 
     /*
@@ -562,12 +567,12 @@ public class Parser {
         // Parse as expression in braces
         if (tokenizer.current().isSymbol("(")) {
             tokenizer.consumeExpectedSymbol("(");
-            Expression result = parseExpression(true);
+            Expression expression = parseExpression(true);
             tokenizer.consumeExpectedSymbol(")");
-            if (result instanceof Operation) {
-                ((Operation) result).protect();
+            if (expression instanceof Operation) {
+                ((Operation) expression).protect();
             }
-            return result;
+            return expression;
         }
 
         // Attribute values can be followed by things like "!import" -> make a value list
@@ -584,17 +589,17 @@ public class Parser {
 
     private Expression parseIdentifierOrFunctionCall() {
         // Identifiers might contain ':' like "progid:DXImageTransform.Microsoft.gradient"
-        String id = "";
+        StringBuilder id = new StringBuilder();
         while (tokenizer.current().isIdentifier() && tokenizer.next().isSymbol(":")) {
-            id += tokenizer.consume().getSource() + ":";
+            id.append(tokenizer.consume().getSource()).append(":");
             tokenizer.consume();
         }
-        id += tokenizer.consume().getSource();
+        id.append(tokenizer.consume().getSource());
 
         if (tokenizer.current().isSymbol("(")) {
             // An identifier followed by '(' is a function call...
             FunctionCall fun = new FunctionCall();
-            fun.setName(id);
+            fun.setName(id.toString());
             tokenizer.consumeExpectedSymbol("(");
             while (tokenizer.more() && !tokenizer.current().isSymbol(")", ";", "{", "}")) {
                 if (tokenizer.current().isIdentifier() && tokenizer.next().isSymbol("=")) {
@@ -611,7 +616,7 @@ public class Parser {
         }
 
         // Neither function or value list -> simple value
-        return new Value(id);
+        return new Value(id.toString());
     }
 
     private void consumeExpectedComma() {
@@ -626,7 +631,7 @@ public class Parser {
     }
 
     /*
-     * Parse @mixin which are essentially template secions...
+     * Parse @mixin which are essentially template sections...
      */
     private Mixin parseMixin() {
         tokenizer.consumeExpectedKeyword("mixin");

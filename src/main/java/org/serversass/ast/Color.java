@@ -118,8 +118,7 @@ public class Color implements Expression {
 
     private static final Pattern RGB_HEX_PATTERN =
             Pattern.compile("#?([\\da-fA-F]{2})([\\da-fA-F]{2})([\\da-fA-F]{2})");
-    private static final Pattern SHORT_RGB_HEX_PATTERN =
-            Pattern.compile("#?([\\da-fA-F]{1})([\\da-fA-F]{1})([\\da-fA-F]{1})");
+    private static final Pattern SHORT_RGB_HEX_PATTERN = Pattern.compile("#?([\\da-fA-F])([\\da-fA-F])([\\da-fA-F])");
 
     /**
      * Creates a new RGB color based on the given hex string
@@ -197,7 +196,7 @@ public class Color implements Expression {
 
         // We need to create some temporary variables. The variables are used to store temporary values which
         // makes the formulas easier to read.
-        double temporary1 = 0;
+        double temporary1;
 
         // There are two formulas to choose from in the first step.
         if (lightness < 1 / 2d) {
@@ -296,13 +295,14 @@ public class Color implements Expression {
     }
 
     private double fixRange(double valueBetween0And1) {
-        while (valueBetween0And1 < 0) {
-            valueBetween0And1++;
+        double fixedValue = valueBetween0And1;
+        while (fixedValue < 0) {
+            fixedValue++;
         }
-        while (valueBetween0And1 > 1) {
-            valueBetween0And1--;
+        while (fixedValue > 1) {
+            fixedValue--;
         }
-        return valueBetween0And1;
+        return fixedValue;
     }
 
     @Override

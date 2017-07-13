@@ -23,7 +23,7 @@ import java.util.TreeMap;
 public class Scope {
 
     private Scope parent;
-    private Map<String, Expression> variables = new TreeMap<String, Expression>();
+    private Map<String, Expression> variables = new TreeMap<>();
 
     /**
      * Creates a new and empty scope without a parent scope

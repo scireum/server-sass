@@ -26,6 +26,10 @@ input[type="radio"]:checked + span {
     margin-right: 5px;
 }
 
+[class^="icon-"], [class*=" icon-"] {
+    font-size: 42px;
+}
+
 .test {
     filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
 }
