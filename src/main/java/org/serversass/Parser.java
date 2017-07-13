@@ -8,8 +8,22 @@
 
 package org.serversass;
 
-import org.serversass.ast.*;
+import org.serversass.ast.Attribute;
+import org.serversass.ast.Color;
+import org.serversass.ast.Expression;
+import org.serversass.ast.FunctionCall;
+import org.serversass.ast.MediaFilter;
+import org.serversass.ast.Mixin;
+import org.serversass.ast.MixinReference;
+import org.serversass.ast.NamedParameter;
 import org.serversass.ast.Number;
+import org.serversass.ast.Operation;
+import org.serversass.ast.Section;
+import org.serversass.ast.Stylesheet;
+import org.serversass.ast.Value;
+import org.serversass.ast.ValueList;
+import org.serversass.ast.Variable;
+import org.serversass.ast.VariableReference;
 import parsii.tokenizer.Char;
 import parsii.tokenizer.ParseException;
 import parsii.tokenizer.Token;
@@ -227,9 +241,9 @@ public class Parser {
             result.addExtends(tokenizer.consume().getSource());
         } else {
             tokenizer.addError(tokenizer.current(),
-                               "Unexpected token: '" +
-                                       tokenizer.current().getSource() +
-                                       "'. Expected a selector to include.");
+                               "Unexpected token: '"
+                               + tokenizer.current().getSource()
+                               + "'. Expected a selector to include.");
         }
         if (tokenizer.current().isSymbol(";") || !tokenizer.next().isSymbol("}")) {
             tokenizer.consumeExpectedSymbol(";");
@@ -368,9 +382,9 @@ public class Parser {
                 }
 
                 return selector;
-            } else if (tokenizer.current().isIdentifier() ||
-                    tokenizer.current().isSpecialIdentifier("#", "@") ||
-                    tokenizer.current().isNumber()) {
+            } else if (tokenizer.current().isIdentifier()
+                       || tokenizer.current().isSpecialIdentifier("#", "@")
+                       || tokenizer.current().isNumber()) {
                 StringBuilder sb = new StringBuilder(tokenizer.consume().getSource());
                 parseFilterInSelector(sb);
                 parseOperatorInSelector(sb);
@@ -610,9 +624,9 @@ public class Parser {
             tokenizer.consumeExpectedSymbol(",");
         } else if (!tokenizer.current().isSymbol(")")) {
             tokenizer.addError(tokenizer.current(),
-                               "Unexpected token: '" +
-                                       tokenizer.consume().getSource() +
-                                       "'. Expected a comma between the parameters.");
+                               "Unexpected token: '"
+                               + tokenizer.consume().getSource()
+                               + "'. Expected a comma between the parameters.");
         }
     }
 
@@ -627,9 +641,9 @@ public class Parser {
             mixin.setName(tokenizer.consume().getContents());
         } else {
             tokenizer.addError(tokenizer.current(),
-                               "Unexpected token: '" +
-                                       tokenizer.current().getSource() +
-                                       "'. Expected the name of the mixin as identifier.");
+                               "Unexpected token: '"
+                               + tokenizer.current().getSource()
+                               + "'. Expected the name of the mixin as identifier.");
         }
         parseParameterNames(mixin);
 
@@ -654,9 +668,9 @@ public class Parser {
                         subSection.addAttribute(attr);
                     } else {
                         tokenizer.addError(tokenizer.current(),
-                                           "Unexpected token: '" +
-                                                   tokenizer.current().getSource() +
-                                                   "'. Expected an attribute definition");
+                                           "Unexpected token: '"
+                                           + tokenizer.current().getSource()
+                                           + "'. Expected an attribute definition");
                         tokenizer.consume();
                     }
                 }
@@ -673,9 +687,9 @@ public class Parser {
         while (tokenizer.more()) {
             if (tokenizer.current().isSymbol("{")) {
                 tokenizer.addError(tokenizer.current(),
-                                   "Unexpected token: '" +
-                                           tokenizer.current().getSource() +
-                                           "'. Expected ')' to complete the parameter list.");
+                                   "Unexpected token: '"
+                                   + tokenizer.current().getSource()
+                                   + "'. Expected ')' to complete the parameter list.");
                 break;
             }
             if (tokenizer.current().isSymbol(")")) {
@@ -686,17 +700,17 @@ public class Parser {
                 mixin.addParameter(tokenizer.consume().getContents());
             } else {
                 tokenizer.addError(tokenizer.current(),
-                                   "Unexpected token: '" +
-                                           tokenizer.consume().getSource() +
-                                           "'. Expected a parameter name like $parameter.");
+                                   "Unexpected token: '"
+                                   + tokenizer.consume().getSource()
+                                   + "'. Expected a parameter name like $parameter.");
             }
             if (tokenizer.current().isSymbol(",")) {
                 tokenizer.consumeExpectedSymbol(",");
             } else if (!tokenizer.current().isSymbol(")")) {
                 tokenizer.addError(tokenizer.current(),
-                                   "Unexpected token: '" +
-                                           tokenizer.consume().getSource() +
-                                           "'. Expected a comma between the parameter names.");
+                                   "Unexpected token: '"
+                                   + tokenizer.consume().getSource()
+                                   + "'. Expected a comma between the parameter names.");
             }
         }
     }
@@ -708,9 +722,9 @@ public class Parser {
         tokenizer.consumeExpectedKeyword("import");
         if (!tokenizer.current().isString()) {
             tokenizer.addError(tokenizer.current(),
-                               "Unexpected token: '" +
-                                       tokenizer.current().getSource() +
-                                       "'. Expected a string constant naming an import file.");
+                               "Unexpected token: '"
+                               + tokenizer.current().getSource()
+                               + "'. Expected a string constant naming an import file.");
         } else {
             result.addImport(tokenizer.consume().getContents());
         }

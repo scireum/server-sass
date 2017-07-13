@@ -8,12 +8,31 @@
 
 package org.serversass;
 
-import org.serversass.ast.*;
+import org.serversass.ast.Attribute;
+import org.serversass.ast.Expression;
+import org.serversass.ast.FunctionCall;
+import org.serversass.ast.Mixin;
+import org.serversass.ast.MixinReference;
+import org.serversass.ast.Section;
+import org.serversass.ast.Stylesheet;
+import org.serversass.ast.Value;
+import org.serversass.ast.Variable;
 import parsii.tokenizer.ParseException;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Generates CSS code from one or more SASS stylesheets.

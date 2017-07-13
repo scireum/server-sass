@@ -116,7 +116,8 @@ public class Color implements Expression {
         }
     }
 
-    private static final Pattern RGB_HEX_PATTERN = Pattern.compile("#?([\\da-fA-F]{2})([\\da-fA-F]{2})([\\da-fA-F]{2})");
+    private static final Pattern RGB_HEX_PATTERN =
+            Pattern.compile("#?([\\da-fA-F]{2})([\\da-fA-F]{2})([\\da-fA-F]{2})");
     private static final Pattern SHORT_RGB_HEX_PATTERN = Pattern.compile("#?([\\da-fA-F])([\\da-fA-F])([\\da-fA-F])");
 
     /**
@@ -138,9 +139,9 @@ public class Color implements Expression {
             g = Integer.parseInt(m.group(2).toLowerCase() + m.group(2).toLowerCase(), 16);
             b = Integer.parseInt(m.group(3).toLowerCase() + m.group(3).toLowerCase(), 16);
         } else {
-            throw new IllegalArgumentException("Cannot parse '" +
-                                                       hexString +
-                                                       "' as hex color. Expected a pattern like #FF00FF");
+            throw new IllegalArgumentException("Cannot parse '"
+                                               + hexString
+                                               + "' as hex color. Expected a pattern like #FF00FF");
         }
     }
 
@@ -323,9 +324,9 @@ public class Color implements Expression {
     }
 
     private boolean canBeExpressedAs3DigitHex(String result) {
-        return result.charAt(1) == result.charAt(2) &&
-                result.charAt(3) == result.charAt(4) &&
-                result.charAt(5) == result.charAt(6);
+        return result.charAt(1) == result.charAt(2)
+               && result.charAt(3) == result.charAt(4)
+               && result.charAt(5) == result.charAt(6);
     }
 
     private String paddedHex(int value) {
