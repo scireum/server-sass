@@ -50,6 +50,10 @@ input[type="radio"]:checked + span {
   height: 12px;
 }
 
+div::after {
+  content: "💩";
+}
+
 // We expect * to work and stay the same
 #test * {
   box-sizing: content-box;

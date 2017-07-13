@@ -401,7 +401,7 @@ public class Parser {
     }
 
     private void parseOperatorInSelector(StringBuilder sb) {
-        while (tokenizer.current().isSymbol(":")) {
+        while (tokenizer.current().isSymbol(":") || tokenizer.current().isSymbol("::")) {
             sb.append(tokenizer.consume().getSource());
             sb.append(tokenizer.consume().getSource());
             // Consume arguments like :nth-child(2)
