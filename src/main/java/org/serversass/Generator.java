@@ -104,6 +104,7 @@ public class Generator {
      * @param message the message which is reported
      */
     public void warn(String message) {
+        // unused
     }
 
     /**
@@ -113,6 +114,7 @@ public class Generator {
      * @param message the message which is reported
      */
     public void debug(String message) {
+        // unused
     }
 
     /**
@@ -131,20 +133,18 @@ public class Generator {
                 sheet += ".scss";
             }
 
-            InputStream is = resolveIntoStream(sheet);
-            if (is == null) {
-                warn("Cannot resolve '" + sheet + "'. Skipping import.");
-                return null;
-            }
-            try {
+            try (InputStream is = resolveIntoStream(sheet)) {
+                if (is == null) {
+                    warn("Cannot resolve '" + sheet + "'. Skipping import.");
+                    return null;
+                }
+
                 Parser p = new Parser(sheet, new InputStreamReader(is));
                 return p.parse();
-            } finally {
-                is.close();
             }
         } catch (ParseException e) {
             warn(String.format("Error parsing: %s%n%s", sheet, e.toString()));
-        } catch (Throwable e) {
+        } catch (Exception e) {
             warn(String.format("Error importing: %s: %s (%s)", sheet, e.getMessage(), e.getClass().getName()));
         }
         return null;
@@ -216,7 +216,7 @@ public class Generator {
             }
         }
         for (Section section : sheet.getSections()) {
-            List<Section> stack = new ArrayList<Section>();
+            List<Section> stack = new ArrayList<>();
             expand(null, section, stack);
         }
     }
@@ -244,34 +244,42 @@ public class Generator {
     }
 
     private String expandMediaQuery(String mediaQueryPath, Section section, List<Section> stack) {
+        mediaQueryPath = expandMediaQueryPath(mediaQueryPath, section);
+
+        // We have implicit attributes - copy the next non-media-query parent
+        // and create a pseudo-secion covering these attributes
+        if (!section.getAttributes().isEmpty()) {
+            transfertImplicitAttributes(mediaQueryPath, section, stack);
+        }
+        return mediaQueryPath;
+    }
+
+    private void transfertImplicitAttributes(String mediaQueryPath, Section section, List<Section> stack) {
+        Section copy = new Section();
+        if (!stack.isEmpty()) {
+            Section parent = stack.get(stack.size() - 1);
+            if (copy.getSelectors().isEmpty()) {
+                copy.getSelectors().addAll(parent.getSelectors());
+            } else if (!parent.getSelectors().isEmpty()) {
+                for (List<String> selector : copy.getSelectors()) {
+                    selector.addAll(0, parent.getSelectors().get(0));
+                }
+            }
+        }
+        if (copy.getSelectors().isEmpty()) {
+            warn(String.format("Cannot define attributes in @media selector '%s'", section.getMediaQuery(scope, this)));
+        } else {
+            copy.getAttributes().addAll(section.getAttributes());
+            addResultSection(mediaQueryPath, copy);
+        }
+    }
+
+    private String expandMediaQueryPath(String mediaQueryPath, Section section) {
         // We're a media query - update path
         if (mediaQueryPath == null) {
             mediaQueryPath = "@media " + section.getMediaQuery(scope, this);
         } else {
             mediaQueryPath += " and " + section.getMediaQuery(scope, this);
-        }
-
-        // We have implicit attributes - copy the next non-media-query parent
-        // and create a pseudo-secion covering these attributes
-        if (!section.getAttributes().isEmpty()) {
-            Section copy = new Section();
-            if (!stack.isEmpty()) {
-                Section parent = stack.get(stack.size() - 1);
-                if (copy.getSelectors().isEmpty()) {
-                    copy.getSelectors().addAll(parent.getSelectors());
-                } else if (!parent.getSelectors().isEmpty()) {
-                    for (List<String> selector : copy.getSelectors()) {
-                        selector.addAll(0, parent.getSelectors().get(0));
-                    }
-                }
-            }
-            if (copy.getSelectors().isEmpty()) {
-                warn(String.format("Cannot define attributes in @media selector '%s'",
-                                   section.getMediaQuery(scope, this)));
-            } else {
-                copy.getAttributes().addAll(section.getAttributes());
-                addResultSection(mediaQueryPath, copy);
-            }
         }
         return mediaQueryPath;
     }
@@ -287,27 +295,31 @@ public class Generator {
         }
         // Expand all selectors with those of the parents (flatten nesting)
         for (List<String> selector : section.getSelectors()) {
-            if (!stack.isEmpty()) {
-                Section parent = stack.get(stack.size() - 1);
-                if (!parent.getSelectors().isEmpty()) {
-                    List<String> parentSelectors = parent.getSelectors().get(0);
-                    if (selector.size() > 1 && !parentSelectors.isEmpty() && "&".equals(selector.get(0))) {
-                        combineSelectors(selector, parentSelectors);
-                    } else if ("&".equals(selector.get(selector.size() - 1))) {
-                        selector.remove(selector.size() - 1);
-                        selector.addAll(parentSelectors);
-                    } else {
-                        selector.addAll(0, parentSelectors);
-                    }
-                }
-            }
-            // Selectors with only one element can be referenced by @extend
-            if (selector.size() == 1) {
-                extensibleSections.put(selector.get(0), section);
-            }
+            expandSelector(section, stack, selector);
         }
         // Add to nesting stack used by children
         stack.add(section);
+    }
+
+    private void expandSelector(Section section, List<Section> stack, List<String> selector) {
+        if (!stack.isEmpty()) {
+            Section parent = stack.get(stack.size() - 1);
+            if (!parent.getSelectors().isEmpty()) {
+                List<String> parentSelectors = parent.getSelectors().get(0);
+                if (selector.size() > 1 && !parentSelectors.isEmpty() && "&".equals(selector.get(0))) {
+                    combineSelectors(selector, parentSelectors);
+                } else if ("&".equals(selector.get(selector.size() - 1))) {
+                    selector.remove(selector.size() - 1);
+                    selector.addAll(parentSelectors);
+                } else {
+                    selector.addAll(0, parentSelectors);
+                }
+            }
+        }
+        // Selectors with only one element can be referenced by @extend
+        if (selector.size() == 1) {
+            extensibleSections.put(selector.get(0), section);
+        }
     }
 
     /*
@@ -320,7 +332,7 @@ public class Generator {
         String firstChild = selector.get(1);
         selector.remove(0);
         selector.remove(0);
-        List<String> selectorsToAdd = new ArrayList<String>(parentSelectors);
+        List<String> selectorsToAdd = new ArrayList<>(parentSelectors);
         String lastParent = selectorsToAdd.get(selectorsToAdd.size() - 1);
         selectorsToAdd.remove(selectorsToAdd.size() - 1);
         selector.add(0, lastParent + firstChild);
@@ -404,15 +416,42 @@ public class Generator {
         }
 
         // Evaluate all parameters and populate sub scope
-        int i = 0;
-        for (String name : mixin.getParameters()) {
-            if (ref.getParameters().size() > i) {
-                subScope.set(name, ref.getParameters().get(i));
-            }
-            i++;
-        }
+        evaluateParameters(ref, subScope, mixin);
 
         // Copy attributes and evaluate expression
+        copyAndEvaluateAttributes(section, subScope, mixin);
+
+        for (Section child : mixin.getSubSections()) {
+            processSubSection(section, subScope, child);
+        }
+    }
+
+    private void processSubSection(Section section, Scope subScope, Section child) {
+        Section newCombination = new Section();
+        for (List<String> outer : child.getSelectors()) {
+            for (List<String> inner : section.getSelectors()) {
+                List<String> fullSelector = new ArrayList<>(outer);
+                if ("&".equals(outer.get(outer.size() - 1))) {
+                    fullSelector.remove(fullSelector.size() - 1);
+                    fullSelector.addAll(inner);
+                } else if ("&".equals(outer.get(0))) {
+                    combineSelectors(fullSelector, inner);
+                } else {
+                    fullSelector.addAll(0, inner);
+                }
+                newCombination.getSelectors().add(fullSelector);
+            }
+        }
+
+        for (Attribute attr : child.getAttributes()) {
+            Attribute copy = new Attribute(attr.getName());
+            copy.setExpression(attr.getExpression().eval(subScope, this));
+            newCombination.addAttribute(copy);
+        }
+        sections.add(newCombination);
+    }
+
+    private void copyAndEvaluateAttributes(Section section, Scope subScope, Mixin mixin) {
         for (Attribute attr : mixin.getAttributes()) {
             if (attr.getExpression().isConstant()) {
                 section.addAttribute(attr);
@@ -422,30 +461,15 @@ public class Generator {
                 section.addAttribute(copy);
             }
         }
+    }
 
-        for (Section child : mixin.getSubSections()) {
-            Section newCombination = new Section();
-            for (List<String> outer : child.getSelectors()) {
-                for (List<String> inner : section.getSelectors()) {
-                    List<String> fullSelector = new ArrayList<>(outer);
-                    if ("&".equals(outer.get(outer.size() - 1))) {
-                        fullSelector.remove(fullSelector.size() - 1);
-                        fullSelector.addAll(inner);
-                    } else if ("&".equals(outer.get(0))) {
-                        combineSelectors(fullSelector, inner);
-                    } else {
-                        fullSelector.addAll(0, inner);
-                    }
-                    newCombination.getSelectors().add(fullSelector);
-                }
+    private void evaluateParameters(MixinReference ref, Scope subScope, Mixin mixin) {
+        int i = 0;
+        for (String name : mixin.getParameters()) {
+            if (ref.getParameters().size() > i) {
+                subScope.set(name, ref.getParameters().get(i));
             }
-
-            for (Attribute attr : child.getAttributes()) {
-                Attribute copy = new Attribute(attr.getName());
-                copy.setExpression(attr.getExpression().eval(subScope, this));
-                newCombination.addAttribute(copy);
-            }
-            sections.add(newCombination);
+            i++;
         }
     }
 
@@ -495,7 +519,7 @@ public class Generator {
             return new Value(call.toString());
         } catch (InvocationTargetException e) {
             warn("Cannot execute function: " + call + " - " + e.getCause().getMessage());
-        } catch (Throwable e) {
+        } catch (Exception e) {
             warn("Cannot execute function: " + call + " - " + e.getMessage());
         }
         return new Value(call.toString());

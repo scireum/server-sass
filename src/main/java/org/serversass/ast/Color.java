@@ -233,7 +233,7 @@ public class Color implements Expression {
      *
      * @return a triple containing the hue, saturation and lightness
      */
-    @SuppressWarnings("FloatingPointEquality")
+    @SuppressWarnings("squid:S1244")
     public HSL getHSL() {
         // Convert the RGB values to the range 0-1
         double red = r / 255.0;
@@ -306,6 +306,7 @@ public class Color implements Expression {
     }
 
     @Override
+    @SuppressWarnings("squid:S1244")
     public String toString() {
         if (a != 0) {
             return "rgba(" + r + "," + g + "," + b + "," + a + ")";

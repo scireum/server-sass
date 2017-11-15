@@ -21,7 +21,7 @@ public class Number implements Expression {
     private final String value;
     private final String unit;
 
-    private static final Pattern NUMBER = Pattern.compile("(\\d+)([a-z]+|%)");
+    private static final Pattern NORMAL_NUMBER = Pattern.compile("(\\d+)([a-z]+|%)");
     private static final Pattern DECIMAL_NUMBER = Pattern.compile("(\\.\\d+|\\d+\\.\\d+)([a-z]+|%)");
     private final Double numericValue;
 
@@ -45,7 +45,7 @@ public class Number implements Expression {
      */
     public Number(String value) {
         numericValue = null;
-        Matcher m = NUMBER.matcher(value);
+        Matcher m = NORMAL_NUMBER.matcher(value);
         if (m.matches()) {
             this.value = m.group(1);
             this.unit = m.group(2);

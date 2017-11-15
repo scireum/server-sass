@@ -15,6 +15,7 @@ import org.serversass.ast.FunctionCall;
 /**
  * Contains all functions which can be called from sass.
  */
+@SuppressWarnings("squid:S1172")
 public class Functions {
 
     private Functions() {
