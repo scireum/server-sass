@@ -17,7 +17,7 @@ import java.util.Locale;
  * Represents a binary operation.
  */
 public class Operation implements Expression {
-    private String operation;
+    private String op;
     private Expression left;
     private Expression right;
     private boolean protect = false;
@@ -30,7 +30,7 @@ public class Operation implements Expression {
      * @param right     the expression on the right side
      */
     public Operation(String operation, Expression left, Expression right) {
-        this.operation = operation;
+        this.op = operation;
         this.left = left;
         this.right = right;
     }
@@ -48,7 +48,7 @@ public class Operation implements Expression {
      * @return the operator as string
      */
     public String getOperation() {
-        return operation;
+        return op;
     }
 
     /**
@@ -89,7 +89,7 @@ public class Operation implements Expression {
 
     @Override
     public String toString() {
-        return (protect ? "(" : "") + left + " " + operation + " " + right + (protect ? ")" : "");
+        return (protect ? "(" : "") + left + " " + op + " " + right + (protect ? ")" : "");
     }
 
     @Override
@@ -102,65 +102,90 @@ public class Operation implements Expression {
         Expression newLeft = left.eval(scope, gen);
         Expression newRight = right.eval(scope, gen);
         if ((newLeft instanceof Number) && (newRight instanceof Number)) {
-            Number l = (Number) newLeft;
-            Number r = (Number) newRight;
-
-            double lVal = l.getNumericValue();
-            String lUnit = l.getUnit();
-            if ("%".equals(lUnit)) {
-                lVal /= 100d;
-                lUnit = "";
-            }
-            double rVal = r.getNumericValue();
-            String rUnit = r.getUnit();
-            if ("%".equals(rUnit)) {
-                rVal /= 100d;
-                rUnit = "";
-            }
-
-            double value = evalOperation(gen, lVal, rVal);
-
-            String unit = "";
-            if (!"/".equals(operation)) {
-                if ("%".equals(l.getUnit()) && ("%".equals(r.getUnit()) || r.getUnit() != null && r.getUnit().isEmpty())
-                    || l.getUnit() != null && l.getUnit().isEmpty() && "%".equals(r.getUnit())) {
-                    value *= 100;
-                    unit = "%";
-                } else {
-                    unit = lUnit;
-                    if (unit != null && unit.isEmpty()) {
-                        unit = rUnit;
-                    } else if (rUnit != null && !rUnit.isEmpty() && !lUnit.equals(rUnit)) {
-                        gen.warn(String.format("Incompatible units mixed in expression '%s': Using left unit for result",
-                                               this));
-                    }
-                }
-            }
-            double rounded = Math.round(value);
-            if (Math.abs(value - rounded) > 0.009) {
-                return new Number(value, String.format(Locale.ENGLISH, "%1.2f", value), unit);
-            }
-            return new Number(value, String.valueOf(Math.round(value)), unit);
+            return evalNumbers(gen, (Number) newLeft, (Number) newRight);
         } else {
             return new Value(newLeft.toString() + newRight.toString());
         }
     }
 
+    protected Expression evalNumbers(Generator gen, Number l, Number r) {
+        double lVal = l.getNumericValue();
+        String lUnit = l.getUnit();
+        if ("%".equals(lUnit)) {
+            lVal /= 100d;
+            lUnit = "";
+        }
+        double rVal = r.getNumericValue();
+        String rUnit = r.getUnit();
+        if ("%".equals(rUnit)) {
+            rVal /= 100d;
+            rUnit = "";
+        }
+
+        double value = evalOperation(gen, lVal, rVal);
+
+        String unit = "";
+        if (!"/".equals(op)) {
+            if (isPercentResult(l, r)) {
+                value *= 100;
+                unit = "%";
+            } else {
+                unit = determineResultUnit(gen, lUnit, rUnit);
+            }
+        }
+        double rounded = Math.round(value);
+        if (Math.abs(value - rounded) > 0.009) {
+            return new Number(value, String.format(Locale.ENGLISH, "%1.2f", value), unit);
+        }
+
+        return new Number(value, String.valueOf(Math.round(value)), unit);
+    }
+
+    private boolean isPercentResult(Number l, Number r) {
+        if ("%".equals(l.getUnit()) && "%".equals(r.getUnit())) {
+            return true;
+        }
+
+        if ("%".equals(l.getUnit()) || "%".equals(r.getUnit())) {
+            if (l.getUnit() != null && l.getUnit().isEmpty()) {
+                return true;
+            }
+            if (r.getUnit() != null && r.getUnit().isEmpty()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private String determineResultUnit(Generator gen, String lUnit, String rUnit) {
+        if (lUnit != null && lUnit.isEmpty()) {
+            return rUnit;
+        }
+
+        if (rUnit != null && !rUnit.isEmpty() && !rUnit.equals(lUnit)) {
+            gen.warn(String.format("Incompatible units mixed in expression '%s': Using left unit for result", this));
+        }
+
+        return lUnit;
+    }
+
+    @SuppressWarnings("squid:S1244")
     protected double evalOperation(Generator gen, double lVal, double rVal) {
         double value = 0d;
-        if ("/".equals(operation)) {
+        if ("/".equals(op)) {
             if (rVal != 0) {
                 value = lVal / rVal;
             } else {
                 gen.warn(String.format("Cannot evaluate: '%s': division by 0. Defaulting to 0 as result", this));
             }
-        } else if ("*".equals(operation)) {
+        } else if ("*".equals(op)) {
             value = lVal * rVal;
-        } else if ("%".equals(operation)) {
+        } else if ("%".equals(op)) {
             value = lVal % rVal;
-        } else if ("+".equals(operation)) {
+        } else if ("+".equals(op)) {
             value = lVal + rVal;
-        } else if ("-".equals(operation)) {
+        } else if ("-".equals(op)) {
             value = lVal - rVal;
         }
         return value;
