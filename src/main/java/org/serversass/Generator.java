@@ -294,32 +294,46 @@ public class Generator {
             addResultSection(mediaQueryPath, section);
         }
         // Expand all selectors with those of the parents (flatten nesting)
+        List<List<String>> newSelectors = new ArrayList<>();
         for (List<String> selector : section.getSelectors()) {
-            expandSelector(section, stack, selector);
+            if (stack.isEmpty()) {
+                // no parent selector
+                newSelectors.add(expandSelector(section, selector, null));
+            } else {
+                // create the cross product of the parent selector set and the current selector set
+                for (List<String> parentSelector : stack.get(stack.size() - 1).getSelectors()) {
+                    // clone selector, so that each expansion starts with the initial child selector
+                    newSelectors.add(expandSelector(section, new ArrayList<>(selector), parentSelector));
+                }
+            }
         }
+
+        // overwrite all selectors of this section, because the size may have changed
+        section.getSelectors().clear();
+        section.getSelectors().addAll(newSelectors);
+
         // Add to nesting stack used by children
         stack.add(section);
     }
 
-    private void expandSelector(Section section, List<Section> stack, List<String> selector) {
-        if (!stack.isEmpty()) {
-            Section parent = stack.get(stack.size() - 1);
-            if (!parent.getSelectors().isEmpty()) {
-                List<String> parentSelectors = parent.getSelectors().get(0);
-                if (selector.size() > 1 && !parentSelectors.isEmpty() && "&".equals(selector.get(0))) {
-                    combineSelectors(selector, parentSelectors);
-                } else if ("&".equals(selector.get(selector.size() - 1))) {
-                    selector.remove(selector.size() - 1);
-                    selector.addAll(parentSelectors);
-                } else {
-                    selector.addAll(0, parentSelectors);
-                }
+    private List<String> expandSelector(Section section, List<String> selector, List<String> parentSelector) {
+        if (parentSelector != null) {
+            if (selector.size() > 1 && !parentSelector.isEmpty() && "&".equals(selector.get(0))) {
+                combineSelectors(selector, parentSelector);
+            } else if ("&".equals(selector.get(selector.size() - 1))) {
+                selector.remove(selector.size() - 1);
+                selector.addAll(parentSelector);
+            } else {
+                selector.addAll(0, parentSelector);
             }
         }
+
         // Selectors with only one element can be referenced by @extend
         if (selector.size() == 1) {
             extensibleSections.put(selector.get(0), section);
         }
+
+        return selector;
     }
 
     /*
