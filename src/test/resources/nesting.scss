@@ -42,3 +42,15 @@ a {
     color: green;
   }
 }
+
+e, f {
+  color: blue;
+
+  g>j, h {
+    color: aquamarine;
+
+    i, &:hover {
+      color: springgreen;
+    }
+  }
+}

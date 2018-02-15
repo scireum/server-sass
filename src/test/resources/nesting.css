@@ -41,3 +41,15 @@ a b:hover {
 a c, a d {
     color: green;
 }
+
+e, f {
+    color: blue;
+}
+
+e g > j, f g > j, e h, f h {
+    color: aquamarine;
+}
+
+e g > j i, f g > j i, e h i, f h i, e g > j:hover, f g > j:hover, e h:hover, f h:hover {
+    color: springgreen;
+}
