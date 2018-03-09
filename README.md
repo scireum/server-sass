@@ -22,7 +22,7 @@ gen.compile();
 // Access css sources
 StringWriter out = new StringWriter();
 Output output = new Output(out, false);
-gen.generate(out);
+gen.generate(output);
 String css = out.toString();
 ```
 If you also need a modern, rock solid web framework which has this module already built in, have
@@ -39,4 +39,3 @@ server-sass is available under:
       <artifactId>server-sass</artifactId>
       <version>1.3.5</version>
     </dependency>
-
