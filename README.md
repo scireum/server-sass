@@ -37,6 +37,6 @@ server-sass is available under:
     <dependency>
       <groupId>com.scireum</groupId>
       <artifactId>server-sass</artifactId>
-      <version>1.3.5</version>
+      <version>4.1.2</version>
     </dependency>
 
