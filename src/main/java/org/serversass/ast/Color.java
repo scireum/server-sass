@@ -11,6 +11,8 @@ package org.serversass.ast;
 import org.serversass.Generator;
 import org.serversass.Scope;
 
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,10 +26,15 @@ public class Color implements Expression {
      */
     public static final double EPSILON = 0.001;
 
+    public static final NumberFormat ALPHA_NUMBERFORMAT = NumberFormat.getNumberInstance(Locale.ROOT);
+    static {
+        ALPHA_NUMBERFORMAT.setMaximumFractionDigits(3);
+    }
+
     private int r = 0;
     private int g = 0;
     private int b = 0;
-    private double a = 0;
+    private float a = 1;
 
     /**
      * Value class to represent a hue, saturation, lightness triple.
@@ -159,18 +166,18 @@ public class Color implements Expression {
     }
 
     /**
-     * Creates a new RGB color withl alpha channel (transparency)
+     * Creates a new RGB color with alpha channel (transparency)
      *
      * @param r the value for red 0..255
      * @param g the value for green 0..255
      * @param b the value for blue 0..255
      * @param a the transparency (opacity) 0..1
      */
-    public Color(int r, int g, int b, double a) {
+    public Color(int r, int g, int b, float a) {
         this.r = r;
         this.g = g;
         this.b = b;
-        this.a = a;
+        this.a = Math.max(0f, Math.min(1f, a));
     }
 
     /**
@@ -181,7 +188,7 @@ public class Color implements Expression {
      * @param lightness    the lightness of the color 0..1
      * @param transparency the transparency of the color 0..1
      */
-    public Color(int hue, double saturation, double lightness, double transparency) {
+    public Color(int hue, double saturation, double lightness, float transparency) {
         this.a = transparency;
 
         if (saturation < EPSILON) {
@@ -282,6 +289,22 @@ public class Color implements Expression {
         return new HSL((int) Math.round(h), s, l);
     }
 
+    public int getR() {
+        return r;
+    }
+
+    public int getG() {
+        return g;
+    }
+
+    public int getB() {
+        return b;
+    }
+
+    public float getA() {
+        return a;
+    }
+
     private double computeColorChannel(double temporary1, double temporary2, double temporaryColor) {
         if (temporaryColor < 1 / 6d) {
             return temporary2 + (temporary1 - temporary2) * 6 * temporaryColor;
@@ -308,8 +331,8 @@ public class Color implements Expression {
     @Override
     @SuppressWarnings("squid:S1244")
     public String toString() {
-        if (a != 0) {
-            return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+        if (a - 1f > EPSILON || a - 1f < -EPSILON) {
+            return "rgba(" + r + "," + g + "," + b + "," + ALPHA_NUMBERFORMAT.format(a) + ")";
         } else {
             String result = "#" + paddedHex(r) + paddedHex(g) + paddedHex(b);
             if (canBeExpressedAs3DigitHex(result)) {
