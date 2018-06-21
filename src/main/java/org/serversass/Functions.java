@@ -97,7 +97,7 @@ public class Functions {
     }
 
     /**
-     * Returns the alpha value of the gioven color
+     * Returns the alpha value of the given color
      *
      * @param generator the surrounding generator
      * @param input     the function call to evaluate
@@ -168,8 +168,8 @@ public class Functions {
      */
     public static Expression opacify(Generator generator, FunctionCall input) {
         Color color = input.getExpectedColorParam(0);
-        float decrease = input.getExpectedFloatParam(1);
-        return new Color(color.getR(), color.getG(), color.getB(), color.getA() + decrease);
+        float amount = input.getExpectedFloatParam(1);
+        return new Color(color.getR(), color.getG(), color.getB(), color.getA() + amount);
     }
 
     /**
@@ -192,8 +192,8 @@ public class Functions {
      */
     public static Expression transparentize(Generator generator, FunctionCall input) {
         Color color = input.getExpectedColorParam(0);
-        float decrease = input.getExpectedFloatParam(1);
-        return new Color(color.getR(), color.getG(), color.getB(), color.getA() - decrease);
+        float amount = input.getExpectedFloatParam(1);
+        return new Color(color.getR(), color.getG(), color.getB(), color.getA() - amount);
     }
 
     /**
@@ -208,7 +208,7 @@ public class Functions {
     }
 
     /**
-     * Decreases the opacity of the given color by the given amount.
+     * Calculates the weighted arithmetic mean of two colors.
      *
      * @param generator the surrounding generator
      * @param input     the function call to evaluate
