@@ -26,11 +26,6 @@ public class Color implements Expression {
      */
     public static final double EPSILON = 0.001;
 
-    public static final NumberFormat ALPHA_NUMBERFORMAT = NumberFormat.getNumberInstance(Locale.ROOT);
-    static {
-        ALPHA_NUMBERFORMAT.setMaximumFractionDigits(3);
-    }
-
     private int r = 0;
     private int g = 0;
     private int b = 0;
@@ -332,7 +327,9 @@ public class Color implements Expression {
     @SuppressWarnings("squid:S1244")
     public String toString() {
         if (a - 1f > EPSILON || a - 1f < -EPSILON) {
-            return "rgba(" + r + "," + g + "," + b + "," + ALPHA_NUMBERFORMAT.format(a) + ")";
+            NumberFormat alphaNumberFormat = NumberFormat.getNumberInstance(Locale.ENGLISH);
+            alphaNumberFormat.setMaximumFractionDigits(3);
+            return "rgba(" + r + "," + g + "," + b + "," + alphaNumberFormat.format(a) + ")";
         } else {
             String result = "#" + paddedHex(r) + paddedHex(g) + paddedHex(b);
             if (canBeExpressedAs3DigitHex(result)) {
