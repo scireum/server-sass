@@ -408,6 +408,13 @@ public class Parser {
                 selector.add(":" + tokenizer.consume().getContents());
             }
         }
+        if (tokenizer.more() && tokenizer.current().isSymbol("&::")) {
+            tokenizer.consume();
+            if (tokenizer.current().is(Token.TokenType.ID)) {
+                selector.add("&");
+                selector.add("::" + tokenizer.consume().getContents());
+            }
+        }
         if (tokenizer.more() && tokenizer.current().isSymbol("::") && tokenizer.next().is(Token.TokenType.ID)) {
             tokenizer.consume();
             selector.add("::" + tokenizer.consume().getContents());

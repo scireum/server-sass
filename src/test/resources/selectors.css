@@ -49,6 +49,11 @@ div::after {
     content: "💩";
 }
 
+div::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
 #test * {
     box-sizing: content-box;
 }

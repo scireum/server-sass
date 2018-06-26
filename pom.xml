@@ -7,7 +7,7 @@
         <version>3.11.4</version>
     </parent>
     <artifactId>server-sass</artifactId>
-    <version>4.2</version>
+    <version>4.2.1</version>
     <packaging>jar</packaging>
 
     <name>server-sass</name>

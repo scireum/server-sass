@@ -54,6 +54,13 @@ div::after {
   content: "💩";
 }
 
+div {
+  &::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+}
+
 // We expect * to work and stay the same
 #test * {
   box-sizing: content-box;
