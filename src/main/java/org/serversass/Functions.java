@@ -179,6 +179,7 @@ public class Functions {
      * @param input     the function call to evaluate
      * @return the result of the evaluation
      */
+    @SuppressWarnings("squid:S00100")
     public static Expression fade_in(Generator generator, FunctionCall input) {
         return opacify(generator, input);
     }
@@ -203,6 +204,7 @@ public class Functions {
      * @param input     the function call to evaluate
      * @return the result of the evaluation
      */
+    @SuppressWarnings("squid:S00100")
     public static Expression fade_out(Generator generator, FunctionCall input) {
         return opacify(generator, input);
     }

@@ -39,11 +39,11 @@ import java.util.List;
 @SuppressWarnings("squid:S1192")
 public class Parser {
 
-    public static final String KEYWORD_IMPORT = "import";
-    public static final String KEYWORD_MIXIN = "mixin";
-    public static final String KEYWORD_INCLUDE = "include";
-    public static final String KEYWORD_EXTEND = "extend";
-    public static final String KEYWORD_MEDIA = "media";
+    private static final String KEYWORD_IMPORT = "import";
+    private static final String KEYWORD_MIXIN = "mixin";
+    private static final String KEYWORD_INCLUDE = "include";
+    private static final String KEYWORD_EXTEND = "extend";
+    private static final String KEYWORD_MEDIA = "media";
 
     /**
      * How to put that right: CSS is kind of "special gifted" - so tokenization is not always that straightforward.
