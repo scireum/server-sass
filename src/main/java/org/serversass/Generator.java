@@ -376,29 +376,37 @@ public class Generator {
         // Treat media queries as "normal" sections as they are supported by CSS
         sections.addAll(mediaQueries.values());
         for (Section section : new ArrayList<Section>(sections)) {
-            // Handle and perform all @extend instructions
-            for (String extend : section.getExtendedSections()) {
-                Section toBeExtended = extensibleSections.get(extend);
-                if (toBeExtended != null) {
-                    toBeExtended.getSelectors().addAll(section.getSelectors());
-                } else {
-                    warn(String.format("Skipping unknown @extend '%s' referenced by selector '%s'",
-                                       extend,
-                                       section.getSelectorString()));
-                }
-            }
-
-            // Handle and perform all @mixin instructions
-            compileMixins(section);
-
-            // Evaluate expressions of the section
-            for (Attribute attr : section.getAttributes()) {
-                attr.setExpression(attr.getExpression().eval(scope, this));
-            }
+            compileSection(section);
         }
 
         // Delete empty selectors
         sections.removeIf(section -> section.getSubSections().isEmpty() && section.getAttributes().isEmpty());
+    }
+
+    private void compileSection(Section section) {
+        // Handle and perform all @extend instructions
+        for (String extend : section.getExtendedSections()) {
+            Section toBeExtended = extensibleSections.get(extend);
+            if (toBeExtended != null) {
+                toBeExtended.getSelectors().addAll(section.getSelectors());
+            } else {
+                warn(String.format("Skipping unknown @extend '%s' referenced by selector '%s'",
+                                   extend,
+                                   section.getSelectorString()));
+            }
+        }
+
+        // Handle and perform all @mixin instructions
+        compileMixins(section);
+
+        // Evaluate expressions of the section
+        for (Attribute attr : section.getAttributes()) {
+            attr.setExpression(attr.getExpression().eval(scope, this));
+        }
+
+        for (Section subSection : section.getSubSections()) {
+            compileSection(subSection);
+        }
     }
 
     protected void compileMixins(Section section) {

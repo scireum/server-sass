@@ -4,3 +4,9 @@ body {
     max-width: 110px;
     height: calc(100% - 47px);
 }
+
+@media (min-width: 481px) and (max-width: 992px) {
+    body {
+        color: #999;
+    }
+}
