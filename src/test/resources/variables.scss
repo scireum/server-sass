@@ -1,5 +1,6 @@
-$font-stack:    Helvetica, sans-serif,'OpenSansBold';
-$primary-color: #333;
+$font-stack:      Helvetica, sans-serif,'OpenSansBold';
+$primary-color:   #333;
+$secondary-color: lighten($primary-color, 200);
 $width: 30px + 960px / 12;
 
 body {
@@ -9,3 +10,8 @@ body {
   height: calc(100% - 47px);
 }
 
+@media (min-width: 481px) and (max-width: 992px) {
+  body {
+    color: $secondary-color;
+  }
+}
