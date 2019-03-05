@@ -71,6 +71,11 @@ public class SassTest {
         compare("keyframes.scss", "keyframes.css");
     }
 
+    @Test
+    public void testGridAreas() {
+        compare("grid.scss", "grid.css");
+    }
+
     private void compare(String scssFile, String cssFile) {
         try {
             Generator gen = new Generator() {
