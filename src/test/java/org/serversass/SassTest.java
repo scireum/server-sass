@@ -75,6 +75,11 @@ public class SassTest {
     public void testGridAreas() {
         compare("grid.scss", "grid.css");
     }
+    
+    @Test
+    public void testNotSelector() {
+        compare("not.scss", "not.css");
+    }
 
     private void compare(String scssFile, String cssFile) {
         try {

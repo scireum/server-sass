@@ -359,7 +359,7 @@ public class Parser {
     }
 
     /*
-     * CSS and therefore als SASS supports a wide range or complex selector strings. The following method
+     * CSS and therefore also SASS supports a wide range or complex selector strings. The following method
      * parses such selectors while performing basic consistency checks
      */
     private List<String> parseSelector() {
@@ -401,23 +401,25 @@ public class Parser {
         if (tokenizer.more() && tokenizer.current().isSymbol("&")) {
             selector.add(tokenizer.consume().getTrigger());
         }
-        if (tokenizer.more() && tokenizer.current().isSymbol("&:")) {
-            tokenizer.consume();
-            if (tokenizer.current().is(Token.TokenType.ID)) {
-                selector.add("&");
-                selector.add(":" + tokenizer.consume().getContents());
-            }
-        }
-        if (tokenizer.more() && tokenizer.current().isSymbol("&::")) {
-            tokenizer.consume();
-            if (tokenizer.current().is(Token.TokenType.ID)) {
-                selector.add("&");
-                selector.add("::" + tokenizer.consume().getContents());
-            }
+        if (tokenizer.more() && (tokenizer.current().isSymbol("&:") || tokenizer.current().isSymbol("&::"))) {
+            consumePseudoInSelectorPrefix(selector);
         }
         if (tokenizer.more() && tokenizer.current().isSymbol("::") && tokenizer.next().is(Token.TokenType.ID)) {
             tokenizer.consume();
             selector.add("::" + tokenizer.consume().getContents());
+        }
+    }
+    
+    private void consumePseudoInSelectorPrefix(List<String> selector) {
+        String pseudoOperator = tokenizer.current().getSource().substring(1); // either : or ::
+        tokenizer.consume();
+        if (tokenizer.current().is(Token.TokenType.ID)) {
+            selector.add("&");
+            StringBuilder sb = new StringBuilder(pseudoOperator + tokenizer.consume().getContents());
+            if (tokenizer.current().isSymbol("(")) {
+                consumeArgument(sb);
+            }
+            selector.add(sb.toString());
         }
     }
 
