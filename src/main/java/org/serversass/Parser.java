@@ -411,10 +411,10 @@ public class Parser {
     }
 
     /**
-     * Parses and consumes selector prefixes which add pseudo-classes ('&:') or pseudo-elements ('&::') to an existing selector, 
-     * Arguments on pseudo classes like '&:not(.class)' are also parsed and consumed.
-     * For valid input like e.g. '&::after' , '&:first-child' , '&:not(.class)' two selectors are added to the given List:
-     * 1. '&'
+     * Parses and consumes selector prefixes which add pseudo-classes ('&amp;:') or pseudo-elements ('&amp;::') to an existing selector, 
+     * Arguments on pseudo classes like '&amp;:not(.class)' are also parsed and consumed.
+     * For valid input like e.g. '&amp;::after' , '&amp;:first-child' , '&amp;:not(.class)' two selectors are added to the given List:
+     * 1. '&amp;'
      * 2. the pseudo-class/element e.g. '::after' , ':first-child' , ':not(.class)'
      * 
      * @param selector the List to which the selectors are added.
