@@ -359,7 +359,7 @@ public class Parser {
     }
 
     /*
-     * CSS and therefore als SASS supports a wide range or complex selector strings. The following method
+     * CSS and therefore also SASS supports a wide range or complex selector strings. The following method
      * parses such selectors while performing basic consistency checks
      */
     private List<String> parseSelector() {
@@ -401,23 +401,35 @@ public class Parser {
         if (tokenizer.more() && tokenizer.current().isSymbol("&")) {
             selector.add(tokenizer.consume().getTrigger());
         }
-        if (tokenizer.more() && tokenizer.current().isSymbol("&:")) {
-            tokenizer.consume();
-            if (tokenizer.current().is(Token.TokenType.ID)) {
-                selector.add("&");
-                selector.add(":" + tokenizer.consume().getContents());
-            }
-        }
-        if (tokenizer.more() && tokenizer.current().isSymbol("&::")) {
-            tokenizer.consume();
-            if (tokenizer.current().is(Token.TokenType.ID)) {
-                selector.add("&");
-                selector.add("::" + tokenizer.consume().getContents());
-            }
+        if (tokenizer.more() && (tokenizer.current().isSymbol("&:") || tokenizer.current().isSymbol("&::"))) {
+            consumePseudoInSelectorPrefix(selector);
         }
         if (tokenizer.more() && tokenizer.current().isSymbol("::") && tokenizer.next().is(Token.TokenType.ID)) {
             tokenizer.consume();
             selector.add("::" + tokenizer.consume().getContents());
+        }
+    }
+
+    /**
+     * Parses and consumes selector prefixes which add pseudo-classes ('&amp;:') or pseudo-elements ('&amp;::') to an existing selector, 
+     * Arguments on pseudo classes like '&amp;:not(.class)' are also parsed and consumed.
+     * For valid input like e.g. '&amp;::after' , '&amp;:first-child' , '&amp;:not(.class)' two selectors are added to the given List:
+     * 1. '&amp;'
+     * 2. the pseudo-class/element e.g. '::after' , ':first-child' , ':not(.class)'
+     * 
+     * @param selector the List to which the selectors are added.
+     */
+    private void consumePseudoInSelectorPrefix(List<String> selector) {
+        String pseudoOperator = tokenizer.current().getSource().substring(1);
+        tokenizer.consume();
+        if (tokenizer.current().is(Token.TokenType.ID)) {
+            selector.add("&");
+            StringBuilder sb = new StringBuilder(pseudoOperator + tokenizer.consume().getContents());
+            // Consume arguments like :nth-child(2)
+            if (tokenizer.current().isSymbol("(")) {
+                consumeArgument(sb);
+            }
+            selector.add(sb.toString());
         }
     }
 
