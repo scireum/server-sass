@@ -72,6 +72,11 @@ public class SassTest {
     }
 
     @Test
+    public void testCssVariables() {
+        compare("css-variables.scss", "css-variables.css");
+    }
+
+    @Test
     public void testGridAreas() {
         compare("grid.scss", "grid.css");
     }
