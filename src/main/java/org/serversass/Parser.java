@@ -104,7 +104,12 @@ public class Parser {
                 return true;
             }
             // Support vendor specific and class selectors like -moz-border-radius or .test
-            return (input.current().is('-') || input.current().is('.')) && input.next().isLetter();
+            if ((input.current().is('-') || input.current().is('.')) && input.next().isLetter()) {
+                return true;
+            }
+
+            // Add support for CSS variables which look like --variable-name
+            return input.current().is('-') && input.next().is('-') && input.next(2).isLetter();
         }
 
         @Override
@@ -407,6 +412,10 @@ public class Parser {
         if (tokenizer.more() && tokenizer.current().isSymbol("::") && tokenizer.next().is(Token.TokenType.ID)) {
             tokenizer.consume();
             selector.add("::" + tokenizer.consume().getContents());
+        }
+        if (tokenizer.more() && tokenizer.current().isSymbol(":") && tokenizer.next().is(Token.TokenType.ID)) {
+            tokenizer.consume();
+            selector.add(":" + tokenizer.consume().getContents());
         }
     }
 
