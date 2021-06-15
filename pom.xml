@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.scireum</groupId>
         <artifactId>sirius-parent</artifactId>
-        <version>5.1</version>
+        <version>8.0.1</version>
     </parent>
     <artifactId>server-sass</artifactId>
     <version>DEVELOPMENT-SNAPSHOT</version>
@@ -14,11 +14,18 @@
     <description>server-sass is a simple implementation of SASS (sass-lang.org)</description>
     <url>https://github.com/scireum/server-sass</url>
 
+    <repositories>
+        <repository>
+            <id>scireum-mvn</id>
+            <url>https://mvn.scireum.com</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>com.scireum</groupId>
             <artifactId>parsii</artifactId>
-            <version>4.0</version>
+            <version>5.0.0</version>
         </dependency>
     </dependencies>
 

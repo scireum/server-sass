@@ -118,7 +118,7 @@ public class Parser {
                 return true;
             }
             // CSS selectors can contain "-", "." or "#" as long as it is not the last character of the token
-            return (current.is('-') || current.is('.') || current.is('#')) && !input.next().isWhitepace();
+            return (current.is('-') || current.is('.') || current.is('#')) && !input.next().isWhitespace();
         }
 
         @Override
@@ -138,7 +138,7 @@ public class Parser {
     }
 
     private final SassTokenizer tokenizer;
-    private Stylesheet result;
+    private final Stylesheet result;
 
     /**
      * Creates a new tokenizer parsing the input with the given name.
@@ -520,22 +520,22 @@ public class Parser {
      * Parses a variable declaration in form of "$variable: value;" or "$variable: value !default;"
      */
     private void parseVariableDeclaration() {
-        Variable var = new Variable();
-        var.setName(tokenizer.consume().getContents());
+        Variable variable = new Variable();
+        variable.setName(tokenizer.consume().getContents());
         tokenizer.consumeExpectedSymbol(":");
-        var.setValue(parseExpression(true));
+        variable.setValue(parseExpression(true));
         if (tokenizer.current().isSymbol("!") && tokenizer.next().hasContent("default")) {
-            var.setDefaultValue(true);
+            variable.setDefaultValue(true);
             tokenizer.consume();
             tokenizer.consume();
         }
-        result.addVariable(var);
+        result.addVariable(variable);
         tokenizer.consumeExpectedSymbol(";");
     }
 
     /*
      * Parses an expression which can be the value of an attribute or media query. Basic numeric operations
-     * like +,-,*,/,% are supported. Also " " separated lists will be parsed as ValueList
+     * like +,-,*,/,% are supported. Also, " " separated lists will be parsed as ValueList
      */
     private Expression parseExpression(boolean acceptLists) {
         Expression expression = acceptLists ? parseAtomList() : parseAtom();
