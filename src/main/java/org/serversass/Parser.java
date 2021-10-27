@@ -420,12 +420,12 @@ public class Parser {
     }
 
     /**
-     * Parses and consumes selector prefixes which add pseudo-classes ('&amp;:') or pseudo-elements ('&amp;::') to an existing selector, 
+     * Parses and consumes selector prefixes which add pseudo-classes ('&amp;:') or pseudo-elements ('&amp;::') to an existing selector,
      * Arguments on pseudo classes like '&amp;:not(.class)' are also parsed and consumed.
      * For valid input like e.g. '&amp;::after' , '&amp;:first-child' , '&amp;:not(.class)' two selectors are added to the given List:
      * 1. '&amp;'
      * 2. the pseudo-class/element e.g. '::after' , ':first-child' , ':not(.class)'
-     * 
+     *
      * @param selector the List to which the selectors are added.
      */
     private void consumePseudoInSelectorPrefix(List<String> selector) {
@@ -563,12 +563,11 @@ public class Parser {
      * Takes care of operator precedence by modifying the AST appropriately
      */
     private Expression joinOperations(Expression result, String operation, Expression next) {
-        if (!(result instanceof Operation)) {
+        if (!(result instanceof Operation farRight)) {
             return new Operation(operation, result, next);
         }
-        Operation farRight = (Operation) result;
-        while (farRight.getRight() instanceof Operation) {
-            farRight = (Operation) farRight.getRight();
+        while (farRight.getRight() instanceof Operation rightOperation) {
+            farRight = rightOperation;
         }
         if (!farRight.isProtect() && ("+".equals(farRight.getOperation()) || "-".equals(farRight.getOperation()))) {
             farRight.setRight(new Operation(operation, farRight.getRight(), next));
@@ -631,8 +630,8 @@ public class Parser {
             tokenizer.consumeExpectedSymbol("(");
             Expression expression = parseExpression(true);
             tokenizer.consumeExpectedSymbol(")");
-            if (expression instanceof Operation) {
-                ((Operation) expression).protect();
+            if (expression instanceof Operation operation) {
+                operation.protect();
             }
             return expression;
         }

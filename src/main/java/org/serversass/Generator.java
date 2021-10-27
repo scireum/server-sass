@@ -143,7 +143,7 @@ public class Generator {
                 return p.parse();
             }
         } catch (ParseException e) {
-            warn(String.format("Error parsing: %s%n%s", sheet, e.toString()));
+            warn(String.format("Error parsing: %s%n%s", sheet, e));
         } catch (Exception e) {
             warn(String.format("Error importing: %s: %s (%s)", sheet, e.getMessage(), e.getClass().getName()));
         }
@@ -357,12 +357,12 @@ public class Generator {
      * Adds a section to the given media query section - creates if necessary
      */
     private void addResultSection(String mediaQueryPath, Section section) {
-        Section qry = mediaQueries.get(mediaQueryPath);
-        if (qry == null) {
-            qry = new Section();
-            qry.getSelectors().add(Collections.singletonList(mediaQueryPath));
-            mediaQueries.put(mediaQueryPath, qry);
-        }
+        Section qry = mediaQueries.computeIfAbsent(mediaQueryPath, ignored -> {
+            Section newQuerySection = new Section();
+            newQuerySection.getSelectors().add(Collections.singletonList(mediaQueryPath));
+            return newQuerySection;
+        });
+
         qry.addSubSection(section);
     }
 
