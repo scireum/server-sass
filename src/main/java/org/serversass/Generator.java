@@ -198,6 +198,13 @@ public class Generator {
         if (sheet == null) {
             return;
         }
+        for (Variable var : sheet.getVariables()) {
+            if (!scope.has(var.getName()) || !var.isDefaultValue()) {
+                scope.set(var.getName(), var.getValue());
+            } else {
+                debug("Skipping redundant variable definition: '" + var + "'");
+            }
+        }
         if (importedSheets.contains(sheet.getName())) {
             return;
         }
@@ -207,13 +214,6 @@ public class Generator {
         }
         for (Mixin mix : sheet.getMixins()) {
             mixins.put(mix.getName(), mix);
-        }
-        for (Variable var : sheet.getVariables()) {
-            if (!scope.has(var.getName()) || !var.isDefaultValue()) {
-                scope.set(var.getName(), var.getValue());
-            } else {
-                debug("Skipping redundant variable definition: '" + var + "'");
-            }
         }
         for (Section section : sheet.getSections()) {
             List<Section> stack = new ArrayList<>();

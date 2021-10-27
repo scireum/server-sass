@@ -25,6 +25,9 @@
 
 }
 
+$width: 123px;
+@import "sub-media";
+
 @media (min-width: 481px) and (max-width: 992px) {
   .test-class {
     width: 100%;
