@@ -621,6 +621,10 @@ public class Parser {
         if (tokenizer.current().isSpecialIdentifier("$")) {
             return new VariableReference(tokenizer.consume().getContents());
         }
+        if (tokenizer.current().isSymbol("-$")) {
+            tokenizer.consume();
+            return new Operation("*", new VariableReference(tokenizer.consume().getContents()), new Number("-1"));
+        }
 
         // Parse as expression in braces
         if (tokenizer.current().isSymbol("(")) {
