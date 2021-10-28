@@ -3,6 +3,7 @@ body {
     color: #333;
     max-width: 110px;
     height: calc(100% - 47px);
+    margin: -15px;
 }
 
 @media (min-width: 481px) and (max-width: 992px) {

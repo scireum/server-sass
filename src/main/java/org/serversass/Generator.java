@@ -143,7 +143,7 @@ public class Generator {
                 return p.parse();
             }
         } catch (ParseException e) {
-            warn(String.format("Error parsing: %s%n%s", sheet, e.toString()));
+            warn(String.format("Error parsing: %s%n%s", sheet, e));
         } catch (Exception e) {
             warn(String.format("Error importing: %s: %s (%s)", sheet, e.getMessage(), e.getClass().getName()));
         }
@@ -198,6 +198,13 @@ public class Generator {
         if (sheet == null) {
             return;
         }
+        for (Variable var : sheet.getVariables()) {
+            if (!scope.has(var.getName()) || !var.isDefaultValue()) {
+                scope.set(var.getName(), var.getValue());
+            } else {
+                debug("Skipping redundant variable definition: '" + var + "'");
+            }
+        }
         if (importedSheets.contains(sheet.getName())) {
             return;
         }
@@ -207,13 +214,6 @@ public class Generator {
         }
         for (Mixin mix : sheet.getMixins()) {
             mixins.put(mix.getName(), mix);
-        }
-        for (Variable var : sheet.getVariables()) {
-            if (!scope.has(var.getName()) || !var.isDefaultValue()) {
-                scope.set(var.getName(), var.getValue());
-            } else {
-                debug("Skipping redundant variable definition: '" + var + "'");
-            }
         }
         for (Section section : sheet.getSections()) {
             List<Section> stack = new ArrayList<>();
@@ -357,12 +357,12 @@ public class Generator {
      * Adds a section to the given media query section - creates if necessary
      */
     private void addResultSection(String mediaQueryPath, Section section) {
-        Section qry = mediaQueries.get(mediaQueryPath);
-        if (qry == null) {
-            qry = new Section();
-            qry.getSelectors().add(Collections.singletonList(mediaQueryPath));
-            mediaQueries.put(mediaQueryPath, qry);
-        }
+        Section qry = mediaQueries.computeIfAbsent(mediaQueryPath, ignored -> {
+            Section newQuerySection = new Section();
+            newQuerySection.getSelectors().add(Collections.singletonList(mediaQueryPath));
+            return newQuerySection;
+        });
+
         qry.addSubSection(section);
     }
 

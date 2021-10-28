@@ -2,6 +2,12 @@ body {
     background-image: url('test.png');
 }
 
+@media (min-width: 123px) {
+    .test-class {
+        width: 80%;
+    }
+}
+
 @media screen {
     .message {
         color: #333;
