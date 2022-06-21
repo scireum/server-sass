@@ -22,15 +22,43 @@ public class Functions {
     private Functions() {
     }
 
-    private static Expression changeLighteness(Color color, int changeInPercent) {
+    /**
+     * Modifies the given color's lightness (after conversion into the HSL model) by the given percentage. Use negative
+     * amounts to darken the color.
+     *
+     * @param color           the original color as hex string
+     * @param changeInPercent the change in percent, possibly negative
+     * @return the lighter (or darker) version of the given color as hex string
+     */
+    public static Color changeLightness(Color color, int changeInPercent) {
         Color.HSL hsl = color.getHSL();
         hsl.setL(Math.max(Math.min(hsl.getL() * (1 + (changeInPercent / 100d)), 1d), 0d));
         return hsl.getColor();
     }
 
-    private static Expression changeSaturation(Color color, int changeInPercent) {
+    /**
+     * Modifies the given color's saturation (after conversion into the HSL model) by the given percentage.
+     *
+     * @param color           the original color as hex string
+     * @param changeInPercent the change in percent
+     * @return the modified color as hex string
+     */
+    public static Color changeSaturation(Color color, int changeInPercent) {
         Color.HSL hsl = color.getHSL();
         hsl.setS(Math.max(Math.min(hsl.getS() * (1 + (changeInPercent / 100d)), 1d), 0d));
+        return hsl.getColor();
+    }
+
+    /**
+     * Modifies the given color's hue (on the color circle, after conversion into the HSL model) by the given angle.
+     *
+     * @param color           the original color as hex string
+     * @param changeInDegrees the change in degrees
+     * @return the modified color as hex string
+     */
+    public static Color changeHue(Color color, int changeInDegrees) {
+        Color.HSL hsl = color.getHSL();
+        hsl.setH(hsl.getH() + changeInDegrees);
         return hsl.getColor();
     }
 
@@ -78,9 +106,7 @@ public class Functions {
     public static Expression adjusthue(Generator generator, FunctionCall input) {
         Color color = input.getExpectedColorParam(0);
         int changeInDegrees = input.getExpectedIntParam(1);
-        Color.HSL hsl = color.getHSL();
-        hsl.setH(hsl.getH() + changeInDegrees);
-        return hsl.getColor();
+        return changeHue(color, changeInDegrees);
     }
 
     /**
@@ -93,7 +119,7 @@ public class Functions {
     public static Expression lighten(Generator generator, FunctionCall input) {
         Color color = input.getExpectedColorParam(0);
         int increase = input.getExpectedIntParam(1);
-        return changeLighteness(color, increase);
+        return changeLightness(color, increase);
     }
 
     /**
@@ -130,7 +156,7 @@ public class Functions {
     public static Expression darken(Generator generator, FunctionCall input) {
         Color color = input.getExpectedColorParam(0);
         int decrease = input.getExpectedIntParam(1);
-        return changeLighteness(color, -decrease);
+        return changeLightness(color, -decrease);
     }
 
     /**
