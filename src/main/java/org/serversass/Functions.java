@@ -50,6 +50,19 @@ public class Functions {
     }
 
     /**
+     * Modifies the given color's hue (on the color circle, after conversion into the HSL model) by the given angle.
+     *
+     * @param color           the original color as hex string
+     * @param changeInDegrees the change in degrees
+     * @return the modified color as hex string
+     */
+    public static Color changeHue(Color color, int changeInDegrees) {
+        Color.HSL hsl = color.getHSL();
+        hsl.setH(hsl.getH() + changeInDegrees);
+        return hsl.getColor();
+    }
+
+    /**
      * Creates a color from given RGB values.
      *
      * @param generator the surrounding generator
@@ -93,9 +106,7 @@ public class Functions {
     public static Expression adjusthue(Generator generator, FunctionCall input) {
         Color color = input.getExpectedColorParam(0);
         int changeInDegrees = input.getExpectedIntParam(1);
-        Color.HSL hsl = color.getHSL();
-        hsl.setH(hsl.getH() + changeInDegrees);
-        return hsl.getColor();
+        return changeHue(color, changeInDegrees);
     }
 
     /**
